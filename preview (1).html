@@ -947,22 +947,15 @@
 
     function startTest() {
       const tokenEl = document.getElementById('token');
-      let token = (tokenEl?.value || '').trim();
+      const token = (tokenEl?.value || '').trim();
       const nama = document.getElementById('nama').value.trim();
       const hp = (document.getElementById('hp')?.value || '').trim();
       const posisi = (document.getElementById('posisi')?.value || '').trim();
 
       if (!token) {
-        const rand = () => Math.random().toString(36).slice(2, 6).toUpperCase();
-        const shortUuid = () => {
-          try {
-            return crypto.randomUUID().split('-')[0].toUpperCase();
-          } catch {
-            return (Date.now().toString(36) + rand() + rand()).toUpperCase();
-          }
-        };
-        token = `ATS-${shortUuid()}`;
-        if (tokenEl) tokenEl.value = token;
+        alert('Silakan isi token dari HRD terlebih dahulu.');
+        tokenEl?.focus();
+        return;
       }
       if (!nama) {
         alert('Silakan isi nama kandidat terlebih dahulu.');
