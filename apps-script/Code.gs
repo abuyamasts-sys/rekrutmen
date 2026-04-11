@@ -13,6 +13,7 @@
 
 const SPREADSHEET_ID = "1Y6ataIODMYO-GEDs33XKfrzV85ougtfiu0cplup5aBg";
 const SHEET_NAME = "assessments";
+const HRD_SHEET_NAME = "HRD_TOKENS";
 
 // Optional shared secret: set a value here and in `sheet-config.js`
 const SHARED_SECRET = "";
@@ -44,6 +45,13 @@ function doPost(e) {
 
     const kind = String(body.kind || "");
     const payload = body.payload || {};
+
+    // HRD token generator (auto increment)
+    if (kind === "hrd_token") {
+      const out = createHrdToken_(ss, payload);
+      return json({ ok: true, ...out }, 200);
+    }
+
     const token = (payload.session && payload.session.token) ? String(payload.session.token) : (payload.seed ? String(payload.seed) : "");
     const name = payload.session && payload.session.candidate && payload.session.candidate.name ? String(payload.session.candidate.name) : (payload.participant ? String(payload.participant) : "");
     const phone = payload.session && payload.session.candidate && payload.session.candidate.phone ? String(payload.session.candidate.phone) : "";
@@ -62,6 +70,55 @@ function doPost(e) {
     return json({ ok: true });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message ? err.message : err) }, 500);
+  }
+}
+
+function createHrdToken_(ss, payload) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sheet = ss.getSheetByName(HRD_SHEET_NAME) || ss.insertSheet(HRD_SHEET_NAME);
+
+    // Header (create once)
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "created_at",
+        "date",
+        "position",
+        "seq",
+        "token",
+        "name",
+        "phone"
+      ]);
+    }
+
+    const tz = Session.getScriptTimeZone() || "Asia/Jakarta";
+    const today = Utilities.formatDate(new Date(), tz, "yyyyMMdd");
+
+    const position = (payload.position ? String(payload.position) : "").trim().toUpperCase() || "GENERAL";
+    const name = (payload.name ? String(payload.name) : "").trim();
+    const phone = (payload.phone ? String(payload.phone) : "").trim();
+
+    const props = PropertiesService.getScriptProperties();
+    const counterKey = "SEQ_" + today + "_" + position;
+    const seq = Number(props.getProperty(counterKey) || "0") + 1;
+    props.setProperty(counterKey, String(seq));
+
+    const token = "ATS-" + today + "-" + position + "-" + ("000" + seq).slice(-3);
+
+    sheet.appendRow([
+      new Date(),
+      today,
+      position,
+      seq,
+      token,
+      name,
+      phone
+    ]);
+
+    return { token, seq, date: today, position };
+  } finally {
+    lock.releaseLock();
   }
 }
 

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airtis HRD • Generator Token</title>
+  <style>
+    :root {
+      --navy: #0d2947;
+      --navy-2: #123d67;
+      --blue: #3ea5ef;
+      --soft: #eef7ff;
+      --line: #d9e7f3;
+      --text: #17324d;
+      --muted: #6c8096;
+      --white: #ffffff;
+      --success: #11824c;
+      --success-bg: #eaf8f0;
+      --danger: #c43d32;
+      --danger-bg: #fdeeee;
+      --shadow: 0 14px 36px rgba(13, 41, 71, 0.10);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #edf7ff 0%, #f7fbff 42%, #f8fbff 100%);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+    .wrap { width: min(860px, 100%); display: grid; gap: 14px; }
+    .card {
+      background: rgba(255,255,255,0.93);
+      border: 1px solid rgba(217, 231, 243, 0.95);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .topbar {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .topbar b { color: var(--navy); }
+    .topbar span { color: var(--muted); font-size: 12px; }
+    .content { padding: 16px; display: grid; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    label { font-size: 13px; font-weight: 800; color: #486682; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: .18s ease;
+    }
+    input:focus, select:focus { border-color: rgba(62,165,239,0.92); box-shadow: 0 0 0 4px rgba(62,165,239,0.12); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:active { transform: translateY(1px) scale(.99); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn-primary { background: var(--navy); color: var(--white); box-shadow: 0 10px 18px rgba(13,41,71,.16); }
+    .btn-secondary { background: rgba(255,255,255,.9); color: var(--navy); border-color: var(--line); }
+    .box {
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      border: 1px solid rgba(62,165,239,.22);
+      background: var(--soft);
+      color: var(--navy);
+      font-weight: 800;
+      display: grid;
+      gap: 8px;
+    }
+    .token {
+      font-size: 20px;
+      letter-spacing: .6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .muted { color: var(--muted); font-weight: 700; font-size: 12px; line-height: 1.6; }
+    .err {
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      border: 1px solid rgba(196,61,50,.22);
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-weight: 800;
+      display: none;
+    }
+    .ok {
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      border: 1px solid rgba(17,130,76,.22);
+      background: var(--success-bg);
+      color: var(--success);
+      font-weight: 900;
+      display: none;
+    }
+    @media (max-width: 420px) { input, select { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <b>HRD • Generator Token</b><br />
+          <span>Membuat token ATS otomatis + simpan ke Google Sheet</span>
+        </div>
+        <div class="row">
+          <a class="btn btn-secondary" href="./">Ke Halaman Tes</a>
+        </div>
+      </div>
+      <div class="content">
+        <div class="err" id="err"></div>
+        <div class="ok" id="ok"></div>
+
+        <div class="field">
+          <label for="position">Posisi</label>
+          <select id="position">
+            <option value="SALES">SALES</option>
+            <option value="PRODUKSI">PRODUKSI</option>
+            <option value="OPERATOR">OPERATOR</option>
+            <option value="GENERAL">GENERAL</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="name">Nama Kandidat (opsional)</label>
+          <input id="name" type="text" placeholder="Nama kandidat" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="phone">No. HP (opsional)</label>
+          <input id="phone" type="tel" inputmode="tel" placeholder="08xxxxxxxxxx" autocomplete="tel" />
+        </div>
+
+        <div class="row">
+          <button class="btn btn-primary" id="genBtn" type="button">Generate Token</button>
+          <button class="btn btn-secondary" id="copyBtn" type="button" disabled>Copy</button>
+          <a class="btn btn-secondary" id="openBtn" href="./preview%20(1).html" target="_blank" rel="noopener" style="display:none;">Buka Tes</a>
+        </div>
+
+        <div class="box" id="tokenBox" style="display:none;">
+          <div>Token:</div>
+          <div class="token" id="tokenText">-</div>
+          <div class="muted">Berikan token ini ke kandidat. Kandidat harus input token sebelum mulai tes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./sheet-config.js"></script>
+  <script src="./sheets-client.js"></script>
+  <script>
+    (function () {
+      const el = (id) => document.getElementById(id);
+      const genBtn = el('genBtn');
+      const copyBtn = el('copyBtn');
+      const openBtn = el('openBtn');
+      const tokenBox = el('tokenBox');
+      const tokenText = el('tokenText');
+      const err = el('err');
+      const ok = el('ok');
+
+      function showErr(msg) {
+        err.style.display = msg ? 'block' : 'none';
+        err.textContent = msg || '';
+      }
+
+      function showOk(msg) {
+        ok.style.display = msg ? 'block' : 'none';
+        ok.textContent = msg || '';
+      }
+
+      async function generate() {
+        showErr('');
+        showOk('');
+        genBtn.disabled = true;
+        try {
+          const position = (el('position').value || 'GENERAL').toString().trim();
+          const name = (el('name').value || '').toString().trim();
+          const phone = (el('phone').value || '').toString().trim();
+          const endpoint = (window.AIRTIS_SHEETS_ENDPOINT || '').toString().trim();
+          if (!endpoint) {
+            showErr('Sheets endpoint belum diisi. Cek sheet-config.js');
+            return;
+          }
+
+          const body = {
+            secret: (window.AIRTIS_SHEETS_SECRET || '').toString().trim() || undefined,
+            kind: 'hrd_token',
+            payload: { position, name, phone }
+          };
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok || !data?.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+
+          const token = data.token;
+          tokenText.textContent = token;
+          tokenBox.style.display = 'grid';
+          copyBtn.disabled = false;
+          openBtn.style.display = 'inline-block';
+          showOk('Token berhasil dibuat & disimpan ke sheet HRD_TOKENS.');
+        } catch (e) {
+          showErr('Gagal generate token: ' + (e?.message || e));
+        } finally {
+          genBtn.disabled = false;
+        }
+      }
+
+      async function copy() {
+        const token = tokenText.textContent.trim();
+        if (!token || token === '-') return;
+        try {
+          await navigator.clipboard.writeText(token);
+          showOk('Token disalin ke clipboard.');
+        } catch {
+          showErr('Gagal copy. Silakan copy manual.');
+        }
+      }
+
+      genBtn.addEventListener('click', generate);
+      copyBtn.addEventListener('click', copy);
+    })();
+  </script>
+</body>
+</html>
+
