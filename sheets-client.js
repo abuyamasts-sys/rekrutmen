@@ -25,18 +25,19 @@
   }
 
   async function postJson(url, body) {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    const text = await res.text();
-    const json = safeParseJson(text);
-    if (!res.ok) {
-      const msg = (json && (json.error || json.message)) ? (json.error || json.message) : text;
-      throw new Error(`Sheets HTTP ${res.status}: ${msg}`);
+    // Apps Script Web App does not reliably support CORS for browser fetch.
+    // Use sendBeacon when available (fire-and-forget), otherwise no-cors fetch.
+    const textBody = JSON.stringify(body);
+
+    if (navigator.sendBeacon) {
+      const ok = navigator.sendBeacon(url, new Blob([textBody], { type: "text/plain;charset=utf-8" }));
+      if (!ok) throw new Error("sendBeacon failed");
+      return { ok: true, beacon: true };
     }
-    return json || { ok: true, raw: text };
+
+    // no-cors: browser won't expose response, but request will be delivered.
+    await fetch(url, { method: "POST", mode: "no-cors", body: textBody });
+    return { ok: true, nocors: true };
   }
 
   async function flushQueue() {
@@ -46,18 +47,13 @@
     const queue = getQueue();
     if (!queue.length) return { ok: true, flushed: 0 };
 
-    const remaining = [];
-    let flushed = 0;
+    // With beacon/no-cors we can't confirm delivery; treat as best-effort.
+    // Keep queue small: after attempting, clear it.
     for (const item of queue) {
-      try {
-        await postJson(url, item);
-        flushed++;
-      } catch (e) {
-        remaining.push(item);
-      }
+      try { await postJson(url, item); } catch {}
     }
-    setQueue(remaining);
-    return { ok: remaining.length === 0, flushed, remaining: remaining.length };
+    setQueue([]);
+    return { ok: true, flushed: queue.length, remaining: 0 };
   }
 
   async function send(kind, payload) {
@@ -86,4 +82,3 @@
     flushQueue
   };
 })();
-

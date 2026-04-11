@@ -209,21 +209,40 @@
             return;
           }
 
-          const body = {
-            secret: (window.AIRTIS_SHEETS_SECRET || '').toString().trim() || undefined,
-            kind: 'hrd_token',
-            payload: { position, name, phone }
-          };
+          const secret = (window.AIRTIS_SHEETS_SECRET || '').toString().trim();
 
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
+          const cbName = '__airtis_cb_' + Math.random().toString(36).slice(2);
+          const data = await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            const qs = new URLSearchParams();
+            qs.set('kind', 'hrd_token');
+            qs.set('position', position);
+            if (name) qs.set('name', name);
+            if (phone) qs.set('phone', phone);
+            if (secret) qs.set('secret', secret);
+            qs.set('cb', cbName);
+
+            const url = endpoint + (endpoint.includes('?') ? '&' : '?') + qs.toString();
+
+            window[cbName] = (payload) => {
+              try { delete window[cbName]; } catch {}
+              script.remove();
+              resolve(payload);
+            };
+
+            script.onerror = () => {
+              try { delete window[cbName]; } catch {}
+              script.remove();
+              reject(new Error('Gagal koneksi (JSONP). Pastikan Apps Script sudah redeploy.'));
+            };
+            script.src = url;
+            document.head.appendChild(script);
           });
-          const data = await res.json().catch(() => null);
-          if (!res.ok || !data?.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
-          const token = data.token;
+          if (!data?.ok) throw new Error(data?.error || 'Unknown error');
+
+          const token = String(data.token || '');
+          if (!token) throw new Error('Token kosong dari server');
           tokenText.textContent = token;
           tokenBox.style.display = 'grid';
           copyBtn.disabled = false;
@@ -253,4 +272,3 @@
   </script>
 </body>
 </html>
-

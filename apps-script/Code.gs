@@ -18,6 +18,36 @@ const HRD_SHEET_NAME = "HRD_TOKENS";
 // Optional shared secret: set a value here and in `sheet-config.js`
 const SHARED_SECRET = "";
 
+// JSONP GET for cross-origin browser use (GitHub Pages)
+// Example:
+//   ?kind=hrd_token&position=SALES&name=...&phone=...&cb=callbackFn
+function doGet(e) {
+  try {
+    const p = (e && e.parameter) ? e.parameter : {};
+    const kind = String(p.kind || "");
+    const cb = String(p.cb || "");
+    const secret = String(p.secret || "");
+
+    if (SHARED_SECRET && secret !== String(SHARED_SECRET)) {
+      return jsonp_(cb, { ok: false, error: "unauthorized" });
+    }
+
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    if (kind === "hrd_token") {
+      const out = createHrdToken_(ss, {
+        position: p.position,
+        name: p.name,
+        phone: p.phone
+      });
+      return jsonp_(cb, { ok: true, ...out });
+    }
+
+    return jsonp_(cb, { ok: false, error: "unsupported_kind" });
+  } catch (err) {
+    return jsonp_("", { ok: false, error: String(err && err.message ? err.message : err) });
+  }
+}
+
 function doPost(e) {
   try {
     const bodyText = e && e.postData && e.postData.contents ? e.postData.contents : "";
@@ -130,4 +160,13 @@ function json(obj, status) {
   obj = obj || {};
   obj._status = status || 200;
   return out;
+}
+
+function jsonp_(cb, obj) {
+  const callback = (cb || "").replace(/[^\w.$]/g, "");
+  const safeCb = callback || "callback";
+  const text = safeCb + "(" + JSON.stringify(obj || {}) + ");";
+  return ContentService
+    .createTextOutput(text)
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
