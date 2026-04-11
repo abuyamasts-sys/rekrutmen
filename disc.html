@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airtis Assessment • Tes DISC (24 Soal)</title>
+  <style>
+    :root {
+      --navy: #0d2947;
+      --navy-2: #123d67;
+      --blue: #3ea5ef;
+      --soft: #eef7ff;
+      --line: #d9e7f3;
+      --text: #17324d;
+      --muted: #6c8096;
+      --white: #ffffff;
+      --success: #11824c;
+      --success-bg: #eaf8f0;
+      --danger: #c43d32;
+      --danger-bg: #fdeeee;
+      --shadow: 0 14px 36px rgba(13, 41, 71, 0.10);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #edf7ff 0%, #f7fbff 42%, #f8fbff 100%);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .wrap {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.93);
+      border: 1px solid rgba(217, 231, 243, 0.95);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand b {
+      display: block;
+      font-size: 14px;
+      letter-spacing: .2px;
+      color: var(--navy);
+    }
+
+    .brand span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .content { padding: 16px; display: grid; gap: 14px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--soft);
+      border: 1px solid rgba(62,165,239,.22);
+      border-radius: var(--radius-lg);
+      padding: 12px 12px;
+      display: grid;
+      gap: 4px;
+      min-height: 72px;
+      align-content: center;
+    }
+
+    .stat small {
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .15px;
+      font-size: 12px;
+    }
+
+    .stat strong {
+      font-size: 18px;
+      color: var(--navy);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .onboarding {
+      background: linear-gradient(180deg, rgba(121,200,255,.16), rgba(238,247,255,.88));
+      border: 1px solid rgba(62,165,239,.24);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .onboarding h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--navy);
+    }
+
+    .onboarding p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .hint-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .hint {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+    }
+
+    .hint b { display: block; font-size: 13px; margin-bottom: 6px; color: var(--navy); }
+    .hint span { display: block; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      font-size: 13px;
+      line-height: 1;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(1px) scale(.99); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn-primary { background: var(--navy); color: var(--white); box-shadow: 0 10px 18px rgba(13,41,71,.16); }
+    .btn-primary:hover { background: var(--navy-2); }
+    .btn-secondary { background: rgba(255,255,255,.9); color: var(--navy); border-color: var(--line); }
+    .btn-secondary:hover { background: #fff; border-color: rgba(62,165,239,.35); box-shadow: 0 10px 18px rgba(13,41,71,.08); }
+
+    .qcard {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .qhead {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .qno {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #edf6ff;
+      border: 1px solid #d9eaf8;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .qtext {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(16px, 1.6vw, 18px);
+      line-height: 1.6;
+      font-weight: 800;
+    }
+
+    .options {
+      padding: 12px 14px 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .option:hover { border-color: #b6d8f2; background: #f8fcff; }
+    .option input { width: 18px; height: 18px; margin: 0; accent-color: var(--navy); flex: 0 0 auto; }
+
+    .badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #edf6ff;
+      border: 1px solid #d9eaf8;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .otext { color: #2a4964; line-height: 1.5; font-size: 15px; font-weight: 600; }
+    .option.selected { background: linear-gradient(180deg, #f4fbff 0%, #eef8ff 100%); border-color: #8ec8ee; box-shadow: inset 0 0 0 1px rgba(62,165,239,0.16); }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .notice {
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      border: 1px solid rgba(196,61,50,.22);
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .done {
+      display: none;
+      text-align: center;
+      padding: 22px 16px;
+    }
+
+    .done h2 { margin: 0 0 8px; color: var(--navy); font-size: 22px; }
+    .done p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: var(--success-bg);
+      border: 1px solid rgba(17,130,76,.22);
+      color: var(--success);
+      font-weight: 900;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      .stats { grid-template-columns: 1fr; }
+      .hint-grid { grid-template-columns: 1fr; }
+      .footer-actions .btn { width: 100%; }
+    }
+
+    @media (max-width: 420px) {
+      input, select { font-size: 16px; }
+    }
+
+    @media (hover: none) {
+      .option:hover { background: #fff; border-color: var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand">
+          <b>Tes DISC (24 Soal)</b>
+          <span>Pilih jawaban yang paling menggambarkan diri Anda</span>
+        </div>
+        <div class="row"></div>
+      </div>
+
+      <div class="content">
+        <div class="stats" aria-label="Status">
+          <div class="stat">
+            <small>Kandidat</small>
+            <strong id="candidateName">-</strong>
+          </div>
+          <div class="stat">
+            <small>Progress</small>
+            <strong><span id="answered">0</span> / <span id="total">24</span></strong>
+          </div>
+          <div class="stat">
+            <small>Soal Aktif</small>
+            <strong>#<span id="activeNo">1</span></strong>
+          </div>
+        </div>
+
+        <div class="onboarding" id="onboarding">
+          <h2>Panduan Pengerjaan</h2>
+          <p>Tes DISC membantu melihat kecenderungan gaya perilaku kerja (D, I, S, C). Tidak ada jawaban benar/salah. Jawablah dengan jujur sesuai kondisi Anda.</p>
+          <div class="hint-grid">
+            <div class="hint"><b>1. Pilih satu jawaban</b><span>Untuk setiap soal, pilih <b>satu</b> pernyataan yang paling menggambarkan diri Anda.</span></div>
+            <div class="hint"><b>2. Jangan terlalu lama</b><span>Pilih jawaban yang paling spontan dan sesuai.</span></div>
+            <div class="hint"><b>3. Selesaikan sampai akhir</b><span>Setelah mulai, selesaikan hingga soal ke-24.</span></div>
+          </div>
+          <div class="row" style="justify-content:center; margin-top:4px;">
+            <button class="btn btn-primary" id="startBtn" type="button">Saya Mengerti, Mulai DISC</button>
+          </div>
+        </div>
+
+        <div class="notice" id="notice"></div>
+
+        <div class="qcard" id="qcard" style="display:none;">
+          <div class="qhead">
+            <div class="qno">Soal <span id="qNo">1</span> / 24</div>
+            <p class="qtext" id="qText"></p>
+          </div>
+          <div class="options" id="options"></div>
+        </div>
+
+        <div class="footer-actions" id="navActions" style="display:none;">
+          <button class="btn btn-secondary" id="prevBtn" type="button">Sebelumnya</button>
+          <button class="btn btn-secondary" id="nextBtn" type="button">Berikutnya</button>
+          <button class="btn btn-primary" id="submitBtn" type="button">Selesaikan Tes</button>
+        </div>
+
+        <div class="done" id="done">
+          <h2>Tes Selesai</h2>
+          <p>Terima kasih. Tes telah selesai dan data telah dikirim ke HRD.</p>
+          <div class="pill">Selesai</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./sheet-config.js"></script>
+  <script src="./sheets-client.js"></script>
+  <script>
+    (function () {
+      const QUESTIONS = [
+        { q: 'Saat menghadapi target, saya cenderung...', options: [
+          { text: 'Langsung bergerak dan mengejar hasil', type: 'D' },
+          { text: 'Menyemangati orang lain agar ikut antusias', type: 'I' },
+          { text: 'Menjaga ritme kerja tetap stabil', type: 'S' },
+          { text: 'Memastikan cara kerja sudah benar', type: 'C' }
+        ]},
+        { q: 'Di dalam tim, saya biasanya...', options: [
+          { text: 'Mengambil kendali saat diperlukan', type: 'D' },
+          { text: 'Mencairkan suasana', type: 'I' },
+          { text: 'Menjadi pendukung yang dapat diandalkan', type: 'S' },
+          { text: 'Menjaga aturan dan ketelitian', type: 'C' }
+        ]},
+        { q: 'Ketika ada masalah mendadak, saya lebih suka...', options: [
+          { text: 'Cepat ambil keputusan', type: 'D' },
+          { text: 'Membicarakannya dengan orang lain', type: 'I' },
+          { text: 'Tetap tenang dan tidak panik', type: 'S' },
+          { text: 'Mencari data sebelum bertindak', type: 'C' }
+        ]},
+        { q: 'Orang lain biasanya melihat saya sebagai pribadi yang...', options: [
+          { text: 'Tegas', type: 'D' },
+          { text: 'Ramah', type: 'I' },
+          { text: 'Sabar', type: 'S' },
+          { text: 'Teliti', type: 'C' }
+        ]},
+        { q: 'Saat bekerja, saya paling nyaman jika...', options: [
+          { text: 'Diberi target yang jelas', type: 'D' },
+          { text: 'Banyak interaksi dengan orang', type: 'I' },
+          { text: 'Lingkungan kerja tenang dan stabil', type: 'S' },
+          { text: 'Tugas memiliki prosedur yang jelas', type: 'C' }
+        ]},
+        { q: 'Jika ada perubahan mendadak, saya biasanya...', options: [
+          { text: 'Segera menyesuaikan dan maju terus', type: 'D' },
+          { text: 'Mencoba tetap positif dan fleksibel', type: 'I' },
+          { text: 'Butuh waktu untuk menyesuaikan diri', type: 'S' },
+          { text: 'Ingin tahu alasan perubahan tersebut', type: 'C' }
+        ]},
+        { q: 'Dalam berkomunikasi, saya lebih sering...', options: [
+          { text: 'Langsung ke inti', type: 'D' },
+          { text: 'Ekspresif dan mudah akrab', type: 'I' },
+          { text: 'Pelan tapi menenangkan', type: 'S' },
+          { text: 'Berhati-hati dan terukur', type: 'C' }
+        ]},
+        { q: 'Hal yang paling penting bagi saya dalam bekerja adalah...', options: [
+          { text: 'Hasil', type: 'D' },
+          { text: 'Relasi', type: 'I' },
+          { text: 'Kestabilan', type: 'S' },
+          { text: 'Ketepatan', type: 'C' }
+        ]},
+        { q: 'Saat diberi tanggung jawab, saya akan...', options: [
+          { text: 'Segera jalankan dan tuntaskan', type: 'D' },
+          { text: 'Mengerjakannya dengan semangat tinggi', type: 'I' },
+          { text: 'Mengerjakannya dengan konsisten', type: 'S' },
+          { text: 'Mengecek detail sebelum mulai', type: 'C' }
+        ]},
+        { q: 'Jika ada konflik kecil di tempat kerja, saya cenderung...', options: [
+          { text: 'Menghadapinya secara tegas', type: 'D' },
+          { text: 'Menyelesaikannya lewat komunikasi', type: 'I' },
+          { text: 'Menghindari agar suasana tetap tenang', type: 'S' },
+          { text: 'Mencari fakta dulu sebelum menilai', type: 'C' }
+        ]},
+        { q: 'Kecepatan kerja saya biasanya...', options: [
+          { text: 'Cepat dan fokus hasil', type: 'D' },
+          { text: 'Cepat saat suasana mendukung', type: 'I' },
+          { text: 'Stabil dan konsisten', type: 'S' },
+          { text: 'Cermat walau perlu waktu lebih', type: 'C' }
+        ]},
+        { q: 'Saya lebih suka pekerjaan yang...', options: [
+          { text: 'Penuh tantangan', type: 'D' },
+          { text: 'Banyak bertemu orang', type: 'I' },
+          { text: 'Teratur dan rutin', type: 'S' },
+          { text: 'Butuh ketelitian tinggi', type: 'C' }
+        ]},
+        { q: 'Saat menerima arahan, saya akan...', options: [
+          { text: 'Segera eksekusi', type: 'D' },
+          { text: 'Menyambut dengan antusias', type: 'I' },
+          { text: 'Menjalankan dengan sabar', type: 'S' },
+          { text: 'Memastikan instruksi sudah jelas', type: 'C' }
+        ]},
+        { q: 'Saya paling tidak nyaman jika...', options: [
+          { text: 'Tidak ada arah atau target', type: 'D' },
+          { text: 'Suasana terlalu kaku', type: 'I' },
+          { text: 'Lingkungan terlalu sering berubah', type: 'S' },
+          { text: 'Pekerjaan berantakan dan tidak jelas', type: 'C' }
+        ]},
+        { q: 'Kelebihan saya yang paling terasa adalah...', options: [
+          { text: 'Berani mengambil keputusan', type: 'D' },
+          { text: 'Mudah membangun hubungan', type: 'I' },
+          { text: 'Setia dan sabar', type: 'S' },
+          { text: 'Akurat dan hati-hati', type: 'C' }
+        ]},
+        { q: 'Saat target belum tercapai, saya biasanya...', options: [
+          { text: 'Mendorong diri lebih keras', type: 'D' },
+          { text: 'Mencari semangat dari orang sekitar', type: 'I' },
+          { text: 'Tetap berusaha perlahan tapi pasti', type: 'S' },
+          { text: 'Mengevaluasi penyebabnya secara detail', type: 'C' }
+        ]},
+        { q: 'Dalam mengambil keputusan, saya cenderung...', options: [
+          { text: 'Cepat dan yakin', type: 'D' },
+          { text: 'Mempertimbangkan perasaan orang', type: 'I' },
+          { text: 'Pelan namun mantap', type: 'S' },
+          { text: 'Berbasis data dan logika', type: 'C' }
+        ]},
+        { q: 'Saya merasa paling cocok jika...', options: [
+          { text: 'Diberi wewenang untuk memimpin', type: 'D' },
+          { text: 'Bisa aktif berbicara dan berinteraksi', type: 'I' },
+          { text: 'Bekerja dalam suasana harmonis', type: 'S' },
+          { text: 'Bekerja dengan standar yang jelas', type: 'C' }
+        ]},
+        { q: 'Jika mengerjakan tugas baru, saya akan...', options: [
+          { text: 'Langsung mencoba', type: 'D' },
+          { text: 'Bertanya dan berdiskusi', type: 'I' },
+          { text: 'Mengikuti contoh yang ada', type: 'S' },
+          { text: 'Mempelajari langkahnya dengan teliti', type: 'C' }
+        ]},
+        { q: 'Saat dinilai orang lain, saya ingin dikenal sebagai...', options: [
+          { text: 'Orang yang kuat', type: 'D' },
+          { text: 'Orang yang menyenangkan', type: 'I' },
+          { text: 'Orang yang dapat dipercaya', type: 'S' },
+          { text: 'Orang yang rapi dan benar', type: 'C' }
+        ]},
+        { q: 'Dalam tekanan kerja, saya biasanya...', options: [
+          { text: 'Semakin tertantang', type: 'D' },
+          { text: 'Butuh dukungan suasana positif', type: 'I' },
+          { text: 'Berusaha tetap tenang', type: 'S' },
+          { text: 'Lebih waspada terhadap kesalahan', type: 'C' }
+        ]},
+        { q: 'Saya paling menghargai rekan kerja yang...', options: [
+          { text: 'Cepat dan sigap', type: 'D' },
+          { text: 'Mudah diajak kerja sama', type: 'I' },
+          { text: 'Stabil dan loyal', type: 'S' },
+          { text: 'Teliti dan disiplin', type: 'C' }
+        ]},
+        { q: 'Saat ada pekerjaan menumpuk, saya akan...', options: [
+          { text: 'Prioritaskan yang paling penting dan kerjakan cepat', type: 'D' },
+          { text: 'Tetap semangat sambil menjaga mood', type: 'I' },
+          { text: 'Mengerjakan satu per satu dengan sabar', type: 'S' },
+          { text: 'Membuat urutan kerja yang rapi', type: 'C' }
+        ]},
+        { q: 'Secara umum, gaya kerja saya paling menggambarkan...', options: [
+          { text: 'Tegas dan berorientasi hasil', type: 'D' },
+          { text: 'Antusias dan komunikatif', type: 'I' },
+          { text: 'Tenang dan konsisten', type: 'S' },
+          { text: 'Teliti dan terstruktur', type: 'C' }
+        ]}
+      ];
+
+      const el = (id) => document.getElementById(id);
+      const onboarding = el('onboarding');
+      const qcard = el('qcard');
+      const optionsEl = el('options');
+      const qText = el('qText');
+      const qNo = el('qNo');
+      const activeNo = el('activeNo');
+      const answeredEl = el('answered');
+      const totalEl = el('total');
+      const notice = el('notice');
+      const navActions = el('navActions');
+      const prevBtn = el('prevBtn');
+      const nextBtn = el('nextBtn');
+      const submitBtn = el('submitBtn');
+      const startBtn = el('startBtn');
+      const done = el('done');
+      const candidateName = el('candidateName');
+
+      const total = QUESTIONS.length;
+      totalEl.textContent = String(total);
+
+      let startedAtIso = null;
+      let currentIndex = 0;
+      let running = false;
+      const answers = new Array(total).fill(null); // stores {type, optIndex}
+
+      function getSession() {
+        try {
+          return JSON.parse(localStorage.getItem('HRRS_SESSION') || 'null') || {};
+        } catch {
+          return {};
+        }
+      }
+
+      function setNotice(text) {
+        if (!text) {
+          notice.style.display = 'none';
+          notice.textContent = '';
+          return;
+        }
+        notice.style.display = 'block';
+        notice.textContent = text;
+      }
+
+      function updateStats() {
+        const answered = answers.filter(Boolean).length;
+        answeredEl.textContent = String(answered);
+        activeNo.textContent = String(currentIndex + 1);
+        const session = getSession();
+        const name = (session.candidate?.name || '').toString().trim();
+        candidateName.textContent = name || '-';
+      }
+
+      function renderQuestion() {
+        const item = QUESTIONS[currentIndex];
+        qNo.textContent = String(currentIndex + 1);
+        qText.textContent = item.q;
+
+        optionsEl.innerHTML = '';
+        item.options.forEach((opt, idx) => {
+          const letter = String.fromCharCode(65 + idx);
+          const checked = answers[currentIndex]?.optIndex === idx;
+          const optId = `q${currentIndex}-opt${idx}`;
+
+          const label = document.createElement('label');
+          label.className = 'option' + (checked ? ' selected' : '');
+          label.setAttribute('for', optId);
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `q${currentIndex}`;
+          input.id = optId;
+          input.value = opt.type;
+          input.checked = checked;
+          input.addEventListener('change', () => {
+            answers[currentIndex] = { type: opt.type, optIndex: idx };
+            setNotice('');
+            renderQuestion();
+            updateStats();
+          });
+
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = letter;
+
+          const text = document.createElement('span');
+          text.className = 'otext';
+          text.textContent = opt.text;
+
+          label.appendChild(input);
+          label.appendChild(badge);
+          label.appendChild(text);
+          optionsEl.appendChild(label);
+        });
+
+        prevBtn.disabled = currentIndex <= 0;
+        nextBtn.disabled = currentIndex >= total - 1;
+        submitBtn.style.display = currentIndex === total - 1 ? 'inline-flex' : 'none';
+        nextBtn.style.display = currentIndex === total - 1 ? 'none' : 'inline-flex';
+      }
+
+      function go(delta) {
+        const next = currentIndex + delta;
+        if (next < 0 || next >= total) return;
+        currentIndex = next;
+        renderQuestion();
+        updateStats();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function computeScores() {
+        const scores = { D: 0, I: 0, S: 0, C: 0 };
+        answers.forEach((a) => {
+          if (!a) return;
+          if (scores[a.type] == null) return;
+          scores[a.type] += 1;
+        });
+        const ordered = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        return { scores, dominant: ordered[0]?.[0] || null, secondary: ordered[1]?.[0] || null };
+      }
+
+      function persist() {
+        const session = getSession();
+        const payload = {
+          meta: {
+            startedAt: startedAtIso,
+            finishedAt: new Date().toISOString()
+          },
+          session: {
+            token: (session.token || '').toString().trim(),
+            candidate: {
+              name: (session.candidate?.name || '').toString().trim(),
+              phone: (session.candidate?.phone || session.candidate?.hp || '').toString().trim(),
+              position: (session.candidate?.position || '').toString().trim()
+            }
+          },
+          answers: answers.map((a, i) => ({
+            no: i + 1,
+            type: a?.type || null,
+            optIndex: Number.isInteger(a?.optIndex) ? a.optIndex : null
+          })),
+          ...computeScores()
+        };
+
+        try {
+          localStorage.setItem('AIRTIS_DISC_LAST', JSON.stringify(payload, null, 2));
+        } catch {}
+
+        try {
+          const key = 'AIRTIS_ASSESSMENT_LOG';
+          const prev = JSON.parse(localStorage.getItem(key) || '[]');
+          const next = Array.isArray(prev) ? prev : [];
+          next.push({ kind: 'disc', at: new Date().toISOString(), payload });
+          localStorage.setItem(key, JSON.stringify(next));
+        } catch {}
+
+        try { window.AirtisSheets?.send('disc', payload); } catch {}
+      }
+
+      function submit() {
+        const answered = answers.filter(Boolean).length;
+        if (answered < total) {
+          setNotice(`Masih ada soal yang belum dijawab. Baru terisi ${answered} dari ${total} soal.`);
+          return;
+        }
+
+        persist();
+        running = false;
+        navActions.style.display = 'none';
+        qcard.style.display = 'none';
+        done.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function start() {
+        if (running) return;
+        const session = getSession();
+        const name = (session.candidate?.name || '').toString().trim();
+        const token = (session.token || '').toString().trim();
+        if (!name || !token) {
+          setNotice('Data kandidat belum lengkap. Kembali ke tahap sebelumnya dan isi Token + Nama.');
+          return;
+        }
+
+        startedAtIso = new Date().toISOString();
+        running = true;
+        onboarding.style.display = 'none';
+        qcard.style.display = 'block';
+        navActions.style.display = 'flex';
+        setNotice('');
+        currentIndex = 0;
+        renderQuestion();
+        updateStats();
+      }
+
+      startBtn.addEventListener('click', start);
+      prevBtn.addEventListener('click', () => go(-1));
+      nextBtn.addEventListener('click', () => go(1));
+      submitBtn.addEventListener('click', submit);
+
+      document.addEventListener('keydown', (e) => {
+        if (!running) return;
+        if (e.key === 'ArrowLeft') go(-1);
+        if (e.key === 'ArrowRight') go(1);
+        if (e.key >= '1' && e.key <= '4') {
+          const idx = parseInt(e.key, 10) - 1;
+          const opt = QUESTIONS[currentIndex].options[idx];
+          if (!opt) return;
+          answers[currentIndex] = { type: opt.type, optIndex: idx };
+          setNotice('');
+          renderQuestion();
+          updateStats();
+        }
+      });
+
+      updateStats();
+    })();
+  </script>
+</body>
+</html>

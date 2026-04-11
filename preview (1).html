@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Psikotest Airtis - Final Production</title>
+  <style>
+    :root {
+      --navy: #0d2947;
+      --navy-2: #123d67;
+      --blue: #3ea5ef;
+      --blue-2: #79c8ff;
+      --soft: #eef7ff;
+      --line: #d9e7f3;
+      --text: #17324d;
+      --muted: #6c8096;
+      --white: #ffffff;
+      --success: #11824c;
+      --success-bg: #eaf8f0;
+      --warn: #b7791f;
+      --warn-bg: #fff5e6;
+      --danger: #c43d32;
+      --danger-bg: #fdeeee;
+      --shadow: 0 14px 36px rgba(13, 41, 71, 0.10);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #edf7ff 0%, #f7fbff 42%, #f8fbff 100%);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 360px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(243,249,255,0.88) 38%, rgba(214,236,252,0.78) 100%),
+        url('/mnt/data/Airtis, Air Demineral untuk Rumah Lebih Sehat (1).webp') center center / cover no-repeat;
+      border-bottom: 1px solid rgba(217, 231, 243, 0.95);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: -8%;
+      right: -8%;
+      bottom: -58px;
+      height: 140px;
+      background: radial-gradient(ellipse at center, rgba(62,165,239,0.22) 0%, rgba(62,165,239,0.06) 44%, rgba(255,255,255,0) 72%);
+      animation: waterPulse 7s ease-in-out infinite;
+    }
+
+    @keyframes waterPulse {
+      0%, 100% { transform: translateX(0) scale(1); opacity: .88; }
+      50% { transform: translateX(-2%) scale(1.04); opacity: 1; }
+    }
+
+    @keyframes floatBottle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 30px 24px 94px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 26px;
+      align-items: end;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-logo {
+      position: absolute;
+      top: 26px;
+      right: 24px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(217,231,243,0.95);
+      background: rgba(255,255,255,0.78);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      box-shadow: 0 6px 18px rgba(13,41,71,0.06);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-bottle {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      min-height: 260px;
+    }
+
+    .hero-bottle img {
+      max-height: 252px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 28px rgba(18,61,103,0.18));
+      animation: floatBottle 4.6s ease-in-out infinite;
+    }
+
+    .hero-copy {
+      padding-right: 16px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(217,231,243,0.98);
+      background: rgba(255,255,255,0.82);
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(13,41,71,0.06);
+      margin-bottom: 14px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 1.06;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      font-weight: 300;
+    }
+
+    .hero-title strong { font-weight: 800; }
+
+    .hero-subtitle {
+      margin: 16px 0 0;
+      max-width: 760px;
+      color: #35526d;
+      line-height: 1.8;
+      font-size: clamp(15px, 1.55vw, 19px);
+    }
+
+    .main {
+      max-width: 1240px;
+      margin: -56px auto 0;
+      padding: 0 clamp(14px, 2.2vw, 24px) 38px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 340px) 1fr;
+      grid-template-areas: "left center";
+      gap: clamp(14px, 2vw, 22px);
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.93);
+      border: 1px solid rgba(217,231,243,0.95);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .left-panel {
+      grid-area: left;
+      position: sticky;
+      top: 18px;
+      overflow: hidden;
+    }
+
+    .center-panel { grid-area: center; }
+
+    .left-head {
+      padding: 22px 22px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .section-tag {
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.16;
+      color: var(--navy);
+    }
+
+    .panel-desc {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .left-body {
+      padding: 20px 22px 22px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #486682;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: .18s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(62,165,239,0.92);
+      box-shadow: 0 0 0 4px rgba(62,165,239,0.12);
+    }
+
+    .meta-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid #dceaf7;
+      background: linear-gradient(180deg, #f9fcff 0%, #f1f8ff 100%);
+      color: #4f6c88;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .timer-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid #d8eaf8;
+      background: linear-gradient(135deg, #f5fbff 0%, #e9f6ff 100%);
+    }
+
+    .timer-box small {
+      display: block;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #5e7c99;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .timer-value {
+      font-size: 30px;
+      letter-spacing: .04em;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 16px 0 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 11px;
+      border-radius: 999px;
+      background: #e7eff7;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--blue-2));
+      transition: width .25s ease;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+      box-shadow: 0 10px 24px rgba(13,41,71,0.18);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); }
+
+    .btn-secondary {
+      color: var(--navy);
+      background: #f5faff;
+      border: 1px solid var(--line);
+    }
+
+    .btn-secondary:hover { background: #edf6ff; }
+
+    .center-panel {
+      padding: 22px;
+      min-height: 720px;
+    }
+
+    .intro {
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+
+    .intro-title {
+      margin: 0;
+      font-size: 28px;
+      color: var(--navy);
+    }
+
+    .intro-desc {
+      margin: 10px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .question-list { display: grid; gap: 16px; }
+
+    .question-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .question-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px 12px;
+    }
+
+    .question-no {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #eef7ff;
+      border: 1px solid #d8eaf8;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .question-type {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f3fbff;
+      border: 1px solid #dcecf9;
+      color: var(--blue);
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .question-text {
+      padding: 0 20px 18px;
+      color: var(--navy);
+      font-size: clamp(16px, 1.6vw, 18px);
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .options {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .option:hover {
+      border-color: #b6d8f2;
+      background: #f8fcff;
+      transform: translateY(-1px);
+    }
+
+    .option input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--navy);
+      flex: 0 0 auto;
+    }
+
+    .option-code {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #edf6ff;
+      border: 1px solid #d9eaf8;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .option-text {
+      color: #2a4964;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .option.selected {
+      background: linear-gradient(180deg, #f4fbff 0%, #eef8ff 100%);
+      border-color: #8ec8ee;
+      box-shadow: inset 0 0 0 1px rgba(62,165,239,0.16);
+    }
+
+    .question-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .question-footer .btn {
+      min-width: 160px;
+    }
+
+    .result-wrap {
+      display: grid;
+      gap: 18px;
+    }
+
+    .result-hero {
+      border-radius: 22px;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--navy) 0%, #1d609b 100%);
+      color: white;
+      box-shadow: 0 18px 40px rgba(13,41,71,0.22);
+    }
+
+    .result-hero small {
+      display: block;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .84;
+      margin-bottom: 8px;
+    }
+
+    .result-hero h2 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .result-hero p {
+      margin: 10px 0 0;
+      max-width: 720px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.93);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 14px;
+    }
+
+    .chip-good { color: var(--success); background: var(--success-bg); }
+    .chip-warn { color: var(--warn); background: var(--warn-bg); }
+    .chip-bad { color: var(--danger); background: var(--danger-bg); }
+    .chip-main { color: var(--navy); background: #edf7ff; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .metric {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+    }
+
+    .metric small {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--navy);
+      font-size: 24px;
+    }
+
+    .assessment {
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .assessment h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      color: var(--navy);
+    }
+
+    .assessment p {
+      margin: 0;
+      font-size: 14px;
+      color: #4d6983;
+      line-height: 1.8;
+    }
+
+    .footer {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px 28px;
+    }
+
+    .footer-box {
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.85);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "center"
+          "left";
+      }
+
+      .left-panel {
+        position: static;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-bottle {
+        justify-content: flex-start;
+        min-height: auto;
+      }
+
+      .hero-bottle img {
+        max-height: 180px;
+      }
+
+      .result-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero {
+        min-height: 300px;
+      }
+
+      .hero-logo {
+        position: static;
+        display: inline-flex;
+        margin-bottom: 16px;
+      }
+
+      .hero-inner {
+        padding: 24px 16px 82px;
+      }
+
+      .main, .footer {
+        padding-inline: 14px;
+      }
+
+      .main {
+        margin-top: -42px;
+      }
+
+      .left-head, .left-body, .center-panel {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .hero-title { font-size: 34px; }
+      .result-grid { grid-template-columns: 1fr; }
+      .question-head { flex-direction: column; align-items: flex-start; }
+      .question-text { font-size: 17px; }
+      .question-footer { flex-direction: column; }
+      .question-footer .btn { width: 100%; }
+    }
+
+    @media (max-width: 420px) {
+      input, select { font-size: 16px; }
+    }
+
+    @media (hover: none) {
+      .option:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-logo">Airtis Assessment</div>
+      <div class="hero-bottle">
+        <img src="./assets/airtis-bottle.webp" alt="Botol Airtis" />
+      </div>
+      <div class="hero-copy">
+        <div class="hero-badge">PT ABUYAMAS TIRTA SEJAHTERA</div>
+        <h1 class="hero-title">Airtis, <strong>Air Demineral</strong><br>untuk Hidup Lebih Sehat</h1>
+        <p class="hero-subtitle">
+          Psikotest kandidat untuk screening awal. Kerjakan dengan jujur, tenang, dan teliti agar hasil lebih akurat.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <main class="main">
+    <div class="layout">
+      <aside class="card left-panel">
+        <div class="left-head">
+          <div class="section-tag">Panel Kontrol</div>
+          <h2 class="panel-title">Kontrol Tes</h2>
+          <p class="panel-desc">Mulai tes, pantau waktu</p>
+        </div>
+        <div class="left-body">
+          <div class="meta-box">
+            Total soal: <strong id="totalSoalMeta">11</strong><br>
+            Waktu tes: <strong>20 menit</strong><br>
+      
+          </div>
+
+          <div class="timer-box">
+            <small>Sisa Waktu</small>
+            <div class="timer-value" id="timer">20:00</div>
+          </div>
+
+          <div class="progress-head">
+            <span>Progress Jawaban</span>
+            <strong id="progressText">0 / 3</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" onclick="startTest()">Mulai Tes</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="card center-panel">
+        <div class="intro" id="introSection">
+          <div class="section-tag">Screening Awal HR</div>
+          <h2 class="intro-title">Psikotest Dasar Kandidat</h2>
+          <p class="intro-desc">
+            Berdoa Sebelum Mengerjakan
+          </p>
+
+          <div class="card" style="margin-top:14px; box-shadow:none; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.78); padding:14px;">
+            <div class="section-tag">Onboarding Kandidat</div>
+            <h3 class="panel-title" style="margin:8px 0 6px; font-size:18px;">Data Kandidat</h3>
+            <p class="panel-desc" style="margin:0 0 12px;">Isi data ini sebelum mulai tes. Token dipakai untuk menyamakan sesi dan meneruskan ke tes berikutnya.</p>
+
+            <div class="left-body" style="padding:0;">
+              <div class="field">
+                <label for="token">Token</label>
+                <input id="token" type="text" placeholder="Masukkan token kandidat" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="nama">Nama</label>
+                <input id="nama" type="text" placeholder="Masukkan nama kandidat" autocomplete="name" />
+              </div>
+              <div class="field">
+                <label for="hp">No. HP</label>
+                <input id="hp" type="tel" inputmode="tel" placeholder="Contoh: 08xxxxxxxxxx" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="posisi">Posisi yang Dilamar</label>
+                <select id="posisi">
+                  <option value="" selected disabled>Pilih posisi</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Produksi">Produksi</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div id="soal" class="question-list hidden"></div>
+        <div id="hasil" class="result-wrap hidden"></div>
+        <div id="offboarding" class="result-wrap hidden"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-box">
+      Airtis Recruitment Assessment • Tampilan ini sudah dirapikan untuk kebutuhan production UI. Langkah berikutnya tinggal menghubungkan hasil tes ke Google Sheets, database, atau dashboard HR internal.
+    </div>
+  </footer>
+
+  
+  <script src="./sheet-config.js"></script>
+  <script src="./sheets-client.js"></script>
+  <script src="./questions-45.js"></script>
+  <script>
+    (function hydrateCandidateForm() {
+      try {
+        const session = JSON.parse(localStorage.getItem('HRRS_SESSION') || 'null');
+        if (!session) return;
+        const tokenEl = document.getElementById('token');
+        const namaEl = document.getElementById('nama');
+        const hpEl = document.getElementById('hp');
+        const posisiEl = document.getElementById('posisi');
+        if (tokenEl && session.token && !tokenEl.value) tokenEl.value = String(session.token);
+        if (namaEl && session.candidate && session.candidate.name && !namaEl.value) namaEl.value = String(session.candidate.name);
+        if (hpEl && session.candidate && (session.candidate.phone || session.candidate.hp) && !hpEl.value) hpEl.value = String(session.candidate.phone || session.candidate.hp);
+        if (posisiEl && session.candidate && session.candidate.position && !posisiEl.value) posisiEl.value = String(session.candidate.position);
+      } catch (e) {
+        console.warn('Gagal hydrate data kandidat', e);
+      }
+    })();
+
+    const questions = Array.isArray(window.AIRTIS_QUESTIONS) ? window.AIRTIS_QUESTIONS : [];
+
+    const hasAnswerKey = questions.some(q => Number.isInteger(q.c));
+    const hasDisc = questions.some(q => q.section === 'disc');
+
+    (function syncQuestionMeta() {
+      const totalEl = document.getElementById('totalSoalMeta');
+      const progressTextEl = document.getElementById('progressText');
+      if (totalEl) totalEl.textContent = String(questions.length);
+      if (progressTextEl) progressTextEl.textContent = `0 / ${questions.length}`;
+      if (!questions.length) console.error('questions kosong: cek questions-45.js');
+    })();
+
+    let started = false;
+    let duration = 20 * 60;
+    let remaining = duration;
+    let timerInterval = null;
+    let currentQuestionIndex = 0;
+    let finishing = false;
+
+    function formatTime(totalSeconds) {
+      const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const sec = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${min}:${sec}`;
+    }
+
+    function updateTimerUI() {
+      document.getElementById('timer').textContent = formatTime(remaining);
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        remaining--;
+        updateTimerUI();
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          finish(true);
+        }
+      }, 1000);
+    }
+
+    function renderNavigator() {}
+
+    function renderQuestions() {
+      const wrap = document.getElementById('soal');
+      wrap.innerHTML = '';
+
+      questions.forEach((item, i) => {
+        const options = item.a.map((opt, idx) => {
+          const code = String.fromCharCode(65 + idx);
+          const text = typeof opt === 'string' ? opt : opt.text;
+          const optionBadge = item.section === 'disc'
+            ? `<span class="option-code">${opt.disc}</span>`
+            : `<span class="option-code">${code}</span>`;
+          return `
+            <label class="option" data-q="${i}">
+              <input type="radio" name="q${i}" value="${idx}" onchange="handleSelect(${i})" />
+              ${optionBadge}
+              <span class="option-text">${text}</span>
+            </label>
+          `;
+        }).join('');
+
+        const guide = item.section === 'disc'
+          ? `<div class="question-text">${item.q}<div style="font-size:13px;color:#6c8096;font-weight:500;margin-top:8px;">Pilih pernyataan yang paling menggambarkan diri Anda saat bekerja.</div></div>`
+          : `<div class="question-text">${item.q}</div>`;
+
+        wrap.innerHTML += `
+          <article class="question-card" id="question-${i}">
+            <div class="question-head">
+              <span class="question-no">Soal ${i + 1}</span>
+              <span class="question-type">${item.type}</span>
+            </div>
+            ${guide}
+            <div class="options">${options}</div>
+          </article>
+        `;
+      });
+
+      wrap.innerHTML += `
+        <div class="question-footer">
+          <button class="btn btn-secondary" onclick="prevQuestion()">Previous</button>
+          <button class="btn btn-secondary" onclick="nextQuestion()">Next</button>
+          <button class="btn btn-primary" onclick="finish(false)">Simpan Jawaban</button>
+        </div>
+      `;
+
+      showOnlyCurrentQuestion();
+      renderNavigator();
+    }
+
+    function showOnlyCurrentQuestion() {
+      questions.forEach((_, i) => {
+        const el = document.getElementById(`question-${i}`);
+        if (el) el.classList.toggle('hidden', i !== currentQuestionIndex);
+      });
+      renderNavigator();
+    }
+
+    function goToQuestion(index) {
+      currentQuestionIndex = index;
+      showOnlyCurrentQuestion();
+      const container = document.getElementById('soal');
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showOnlyCurrentQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showOnlyCurrentQuestion();
+      }
+    }
+
+    function handleSelect(questionIndex) {
+      document.querySelectorAll(`label.option[data-q="${questionIndex}"]`).forEach(el => {
+        el.classList.remove('selected');
+      });
+
+      const checked = document.querySelector(`input[name="q${questionIndex}"]:checked`);
+      if (checked) checked.closest('label.option').classList.add('selected');
+
+      updateProgress();
+      renderNavigator();
+    }
+
+    function updateProgress() {
+      let answered = 0;
+      questions.forEach((_, i) => {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+      });
+      const pct = (answered / questions.length) * 100;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      document.getElementById('progressText').textContent = `${answered} / ${questions.length}`;
+    }
+
+    function startTest() {
+      const tokenEl = document.getElementById('token');
+      let token = (tokenEl?.value || '').trim();
+      const nama = document.getElementById('nama').value.trim();
+      const hp = (document.getElementById('hp')?.value || '').trim();
+      const posisi = (document.getElementById('posisi')?.value || '').trim();
+
+      if (!token) {
+        const rand = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+        const shortUuid = () => {
+          try {
+            return crypto.randomUUID().split('-')[0].toUpperCase();
+          } catch {
+            return (Date.now().toString(36) + rand() + rand()).toUpperCase();
+          }
+        };
+        token = `ATS-${shortUuid()}`;
+        if (tokenEl) tokenEl.value = token;
+      }
+      if (!nama) {
+        alert('Silakan isi nama kandidat terlebih dahulu.');
+        return;
+      }
+      if (!hp) {
+        alert('Silakan isi no. HP kandidat terlebih dahulu.');
+        return;
+      }
+      if (!posisi) {
+        alert('Silakan pilih posisi yang dilamar.');
+        return;
+      }
+
+      try {
+        localStorage.setItem('HRRS_SESSION', JSON.stringify({
+          token,
+          candidate: { name: nama, phone: hp, position: posisi }
+        }));
+      } catch (e) {
+        console.warn('Gagal menyimpan session kandidat', e);
+      }
+
+      currentQuestionIndex = 0;
+      renderQuestions();
+      document.getElementById('soal').classList.remove('hidden');
+      document.getElementById('hasil').classList.add('hidden');
+      started = true;
+      remaining = duration;
+      updateTimerUI();
+      updateProgress();
+      startTimer();
+    }
+
+    function convertRawToIQ(score, total) {
+      let iq = Math.round(70 + (score / total) * 75);
+      if (iq > 145) iq = 145;
+      if (iq < 70) iq = 70;
+      return iq;
+    }
+
+    function getCategory(iq) {
+      if (iq >= 130) return { text: 'Superior', cls: 'chip-good', desc: 'Kemampuan tangkap dan analisa kandidat tergolong sangat baik untuk screening awal.' };
+      if (iq >= 110) return { text: 'Cerdas', cls: 'chip-main', desc: 'Kandidat memiliki kapasitas cukup baik untuk belajar dan memahami pola kerja.' };
+      if (iq >= 90) return { text: 'Rata-rata', cls: 'chip-main', desc: 'Masih sesuai untuk pekerjaan operasional dengan SOP yang jelas dan pembinaan awal.' };
+      if (iq >= 80) return { text: 'Di bawah rata-rata ringan', cls: 'chip-warn', desc: 'Perlu instruksi yang lebih jelas, pengulangan, dan pengawasan lebih dekat.' };
+      return { text: 'Di bawah rata-rata', cls: 'chip-bad', desc: 'Perlu pertimbangan lebih hati-hati dan sebaiknya diuji kembali melalui interview atau trial.' };
+    }
+
+    function getRecommendation(position, iq) {
+      if (position === 'Sales') {
+        if (iq >= 110) return 'Layak diprioritaskan untuk Sales';
+        if (iq >= 90) return 'Cukup layak untuk Sales dengan training';
+        return 'Perlu pertimbangan ulang untuk Sales';
+      }
+      if (iq >= 100) return 'Layak diprioritaskan untuk Produksi';
+      if (iq >= 90) return 'Cukup layak untuk Produksi dengan pembinaan';
+      return 'Perlu pertimbangan ulang untuk Produksi';
+    }
+
+    function getDiscScores() {
+      const scores = { D: 0, I: 0, S: 0, C: 0 };
+      questions.forEach((q, i) => {
+        if (q.section !== 'disc') return;
+        const val = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!val) return;
+        const picked = q.a[Number(val.value)];
+        scores[picked.disc]++;
+      });
+      return scores;
+    }
+
+    function getDiscProfile(scores) {
+      const ordered = Object.entries(scores).sort((a,b) => b[1] - a[1]);
+      const dominant = ordered[0][0];
+      const secondary = ordered[1][0];
+
+      const profiles = {
+        D: {
+          name: 'Dominance (D)',
+          short: 'Tegas, cepat, berani mengambil keputusan, dan suka target.',
+          salesFit: 'Cocok untuk sales lapangan, closing, atau role yang butuh dorongan hasil.',
+          prodFit: 'Perlu diarahkan agar tetap sabar dan disiplin SOP saat di produksi.'
+        },
+        I: {
+          name: 'Influence (I)',
+          short: 'Komunikatif, mudah akrab, energik, dan suka interaksi.',
+          salesFit: 'Sangat cocok untuk sales, promosi, follow up, dan membangun hubungan.',
+          prodFit: 'Bisa bekerja baik, namun perlu lingkungan yang jelas agar fokus.'
+        },
+        S: {
+          name: 'Steadiness (S)',
+          short: 'Sabar, stabil, loyal, tenang, dan konsisten.',
+          salesFit: 'Cocok untuk pelayanan pelanggan dan follow up yang membutuhkan kesabaran.',
+          prodFit: 'Sangat cocok untuk produksi yang butuh ritme kerja stabil dan disiplin.'
+        },
+        C: {
+          name: 'Compliance (C)',
+          short: 'Teliti, hati-hati, rapi, dan suka aturan serta standar.',
+          salesFit: 'Cocok untuk admin sales, dokumentasi, atau sales yang berbasis data/detail.',
+          prodFit: 'Sangat cocok untuk produksi, QC, dan pekerjaan yang butuh ketelitian.'
+        }
+      };
+
+      return {
+        dominant,
+        secondary,
+        name: profiles[dominant].name,
+        short: profiles[dominant].short,
+        salesFit: profiles[dominant].salesFit,
+        prodFit: profiles[dominant].prodFit
+      };
+    }
+
+    function getRoleFitFromDisc(position, discProfile) {
+      return position === 'Sales' ? discProfile.salesFit : discProfile.prodFit;
+    }
+
+    function buildDiscMetricHTML(scores) {
+      return ['D', 'I', 'S', 'C'].map(key => `
+        <div class="metric">
+          <small>Skor ${key}</small>
+          <strong>${scores[key]}</strong>
+        </div>
+      `).join('');
+    }
+
+    function finish(auto) {
+      if (finishing) return;
+      if (!started) {
+        alert('Tes belum dimulai.');
+        return;
+      }
+      finishing = true;
+
+      clearInterval(timerInterval);
+
+      const cognitiveQuestions = questions.filter(q => q.section === 'kognitif');
+      let answered = 0;
+      let scoreCorrect = 0;
+      questions.forEach((q, i) => {
+        const val = document.querySelector(`input[name="q${i}"]:checked`);
+        if (val) answered++;
+        if (!hasAnswerKey) return;
+        if (q.section !== 'kognitif') return;
+        if (!Number.isInteger(q.c)) return;
+        if (val && Number(val.value) === q.c) scoreCorrect++;
+      });
+
+      const token = (document.getElementById('token')?.value || '').trim();
+      const nama = document.getElementById('nama').value.trim();
+      const hp = (document.getElementById('hp')?.value || '').trim();
+      const posisi = (document.getElementById('posisi')?.value || '').trim();
+      const iq = hasAnswerKey ? convertRawToIQ(scoreCorrect, cognitiveQuestions.length) : null;
+      const kategori = hasAnswerKey
+        ? getCategory(iq)
+        : { text: 'Rekap', cls: 'chip-main', desc: 'Kunci jawaban belum tersedia, sehingga hasil bersifat rekap jawaban.' };
+      const rekomendasi = hasAnswerKey ? getRecommendation(posisi, iq) : 'Butuh penilaian manual (kunci jawaban belum tersedia).';
+      const discScores = hasDisc ? getDiscScores() : null;
+      const discProfile = hasDisc ? getDiscProfile(discScores) : null;
+      const status = auto ? 'Tes selesai otomatis karena waktu habis.' : 'Tes diselesaikan oleh kandidat.';
+      const roleFit = hasDisc ? getRoleFitFromDisc(posisi, discProfile) : null;
+
+      const payload = {
+        meta: {
+          finishedAt: new Date().toISOString(),
+          status,
+          auto: auto ? 1 : 0,
+          durationSeconds: duration
+        },
+        session: {
+          token: token || '',
+          candidate: { name: nama || '', phone: hp || '', position: posisi || '' }
+        },
+        summary: {
+          answered,
+          total: questions.length,
+          hasAnswerKey: hasAnswerKey ? 1 : 0,
+          correct: hasAnswerKey ? scoreCorrect : null,
+          iq: hasAnswerKey ? iq : null,
+          category: hasAnswerKey ? kategori.text : null,
+          recommendation: rekomendasi || null
+        },
+        answers: questions.map((q, i) => {
+          const val = document.querySelector(`input[name="q${i}"]:checked`);
+          const idx = val ? Number(val.value) : null;
+          const letter = Number.isInteger(idx) ? String.fromCharCode(65 + idx) : null;
+          return {
+            no: i + 1,
+            question: q.q,
+            pickedIndex: Number.isInteger(idx) ? idx : null,
+            pickedLetter: letter,
+            correctIndex: Number.isInteger(q.c) ? q.c : null
+          };
+        })
+      };
+
+      try { localStorage.setItem('AIRTIS_CBT_LAST', JSON.stringify(payload, null, 2)); } catch {}
+      try {
+        const key = 'AIRTIS_ASSESSMENT_LOG';
+        const prev = JSON.parse(localStorage.getItem(key) || '[]');
+        const next = Array.isArray(prev) ? prev : [];
+        next.push({ kind: 'cbt', at: new Date().toISOString(), payload });
+        localStorage.setItem(key, JSON.stringify(next));
+      } catch {}
+
+      try { window.AirtisSheets?.send('cbt', payload); } catch {}
+
+      document.getElementById('soal').classList.add('hidden');
+      const hasil = document.getElementById('hasil');
+      hasil.classList.add('hidden');
+      hasil.innerHTML = '';
+
+      const off = document.getElementById('offboarding');
+      off.classList.remove('hidden');
+      off.innerHTML = `
+        <section class="result-hero" style="background: linear-gradient(135deg, var(--navy) 0%, #1d609b 100%);">
+          <small>Jawaban Tersimpan</small>
+          <h2>Terima kasih, ${nama || 'Kandidat'}.</h2>
+          <p>Jawaban Anda sudah direkam. Selanjutnya Anda akan otomatis masuk ke <strong>Tes Pauli Kraepelin</strong>.</p>
+          <div class="status-chip chip-main">Transisi otomatis...</div>
+        </section>
+        <section class="assessment">
+          <h3>Catatan</h3>
+          <p>Hasil tidak ditampilkan di layar kandidat.</p>
+        </section>
+      `;
+
+      off.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      setTimeout(() => { window.location.href = './kraepelin.html'; }, 1200);
+    }
+
+    function resetTest() {
+      clearInterval(timerInterval);
+      finishing = false;
+      started = false;
+      remaining = duration;
+      currentQuestionIndex = 0;
+      updateTimerUI();
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('progressText').textContent = `0 / ${questions.length}`;
+      document.getElementById('soal').classList.add('hidden');
+      document.getElementById('hasil').classList.add('hidden');
+      document.getElementById('soal').innerHTML = '';
+      document.getElementById('hasil').innerHTML = '';
+      renderNavigator();
+    }
+
+    document.getElementById('totalSoalMeta').textContent = questions.length;
+    document.getElementById('progressText').textContent = `0 / ${questions.length}`;
+    updateTimerUI();
+    renderNavigator();
+  </script>
+
+</body>
+</html>

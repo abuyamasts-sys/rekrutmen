@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airtis Assessment • Tes Pauli Kraepelin</title>
+  <style>
+    :root {
+      --navy: #0d2947;
+      --navy-2: #123d67;
+      --blue: #3ea5ef;
+      --blue-2: #79c8ff;
+      --soft: #eef7ff;
+      --line: #d9e7f3;
+      --text: #17324d;
+      --muted: #6c8096;
+      --white: #ffffff;
+      --success: #11824c;
+      --success-bg: #eaf8f0;
+      --warn: #b7791f;
+      --warn-bg: #fff5e6;
+      --danger: #c43d32;
+      --danger-bg: #fdeeee;
+      --shadow: 0 14px 36px rgba(13, 41, 71, 0.10);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #edf7ff 0%, #f7fbff 42%, #f8fbff 100%);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .wrap {
+      width: min(920px, 100%);
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.90));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand b {
+      font-size: 14px;
+      letter-spacing: .2px;
+      color: var(--navy);
+    }
+
+    .brand span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      font-size: 13px;
+      line-height: 1;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: translateY(1px) scale(.99); }
+    .btn-primary { background: var(--navy); color: var(--white); box-shadow: 0 10px 18px rgba(13,41,71,.16); }
+    .btn-primary:hover { background: var(--navy-2); }
+    .btn-secondary { background: rgba(255,255,255,.9); color: var(--navy); border-color: var(--line); }
+    .btn-secondary:hover { background: #fff; border-color: rgba(62,165,239,.35); box-shadow: 0 10px 18px rgba(13,41,71,.08); }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: rgba(196,61,50,.22); }
+    .btn-danger:hover { background: #fff; border-color: rgba(196,61,50,.32); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    .content {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--soft);
+      border: 1px solid rgba(62,165,239,.22);
+      border-radius: var(--radius-lg);
+      padding: 12px 12px;
+      display: grid;
+      gap: 4px;
+      min-height: 72px;
+      align-content: center;
+    }
+
+    .stat small {
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .15px;
+      font-size: 12px;
+    }
+
+    .stat strong {
+      font-size: 22px;
+      color: var(--navy);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .onboarding {
+      background: linear-gradient(180deg, rgba(121,200,255,.16), rgba(238,247,255,.88));
+      border: 1px solid rgba(62,165,239,.24);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .onboarding h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--navy);
+    }
+
+    .onboarding p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .hint-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .hint {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+    }
+
+    .hint b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+
+    .hint span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .example {
+      background: rgba(255,255,255,.92);
+      border: 1px dashed rgba(62,165,239,.45);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .example div {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .example b {
+      color: var(--navy);
+      font-size: 16px;
+    }
+
+    .play {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .screen {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      align-content: start;
+      min-height: 330px;
+    }
+
+    .nums {
+      width: min(360px, 100%);
+      border: 1px solid rgba(62,165,239,.22);
+      background: linear-gradient(180deg, rgba(238,247,255,.75), rgba(255,255,255,.92));
+      border-radius: var(--radius-xl);
+      display: grid;
+      place-items: center;
+      min-height: 240px;
+    }
+
+    .col {
+      display: grid;
+      gap: 16px;
+      text-align: center;
+      font-size: 92px;
+      line-height: .86;
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+      color: var(--navy);
+    }
+
+    .prompt {
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .15px;
+    }
+
+    .feedback {
+      height: 18px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .1px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .feedback.good { color: var(--success); }
+    .feedback.bad { color: var(--danger); }
+
+    .keypad {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .key-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .key {
+      height: 72px;
+      border-radius: 16px;
+      border: 1px solid rgba(62,165,239,.26);
+      background: #fff;
+      cursor: pointer;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--navy);
+      box-shadow: 0 10px 18px rgba(13,41,71,.07);
+      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+      user-select: none;
+    }
+
+    .key:hover { border-color: rgba(62,165,239,.45); box-shadow: 0 14px 26px rgba(13,41,71,.10); }
+    .key:active { transform: translateY(1px) scale(.99); }
+    .key:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    .panel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 920px) {
+      .play { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; }
+      .stats { grid-template-columns: 1fr; }
+      .hint-grid { grid-template-columns: 1fr; }
+      .col { font-size: 78px; }
+      .key { height: 62px; font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div class="brand">
+          <b>Tes Pauli Kraepelin</b>
+          <span>Jumlahkan dua angka • masukkan angka satuan saja</span>
+        </div>
+        <div class="top-actions">
+          <a class="btn btn-secondary" href="./preview (1).html">Kembali</a>
+          <button class="btn btn-danger" id="endBtn" type="button" disabled>Akhiri Tes</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="onboarding hidden" id="offboardingBox">
+          <h2>Tes Pauli Selesai</h2>
+          <p>Terima kasih. Jawaban Anda sudah direkam.</p>
+          <p><b>Peringatan keras:</b> hasil tes tidak ditampilkan kepada kandidat dan hanya dapat dilihat oleh HRD.</p>
+          <div class="example" style="border-style:solid; border-color: rgba(62,165,239,.28);">
+            <div>Selanjutnya Anda akan otomatis masuk ke <b>Tes DISC</b>.</div>
+          </div>
+        </div>
+
+        <div class="stats" aria-label="Statistik tes">
+          <div class="stat">
+            <small>Skor | Salah</small>
+            <strong><span id="score">0</span> | <span id="wrong">0</span></strong>
+          </div>
+          <div class="stat">
+            <small>Kolom | Sisa Kolom</small>
+            <strong><span id="col">1</span> | <span id="colLeft">60</span>s</strong>
+          </div>
+          <div class="stat">
+            <small>Sisa Total</small>
+            <strong><span id="totalLeft">1800</span>s</strong>
+          </div>
+        </div>
+
+        <div class="onboarding" id="onboardingBox">
+          <h2>Panduan</h2>
+          <p>Tes ini mengukur ketelitian, konsistensi, kecepatan kerja, dan daya tahan fokus. Tugas Anda sederhana: jumlahkan dua angka yang tampil, lalu masukkan hanya angka satuannya.</p>
+          <p><b>Peringatan keras:</b> hasil tes tidak ditampilkan kepada kandidat dan hanya dapat dilihat oleh HRD.</p>
+          <div class="hint-grid">
+            <div class="hint"><b>1. Lihat dua angka</b><span>Fokus pada dua angka vertikal di tengah layar.</span></div>
+            <div class="hint"><b>2. Jumlahkan cepat</b><span>Tambahkan dua angka, lalu ambil angka paling belakang (satuan).</span></div>
+            <div class="hint"><b>3. Masukkan jawabannya</b><span>Pakai keypad di layar atau tombol angka di keyboard.</span></div>
+          </div>
+          <div class="example">
+            <div>Contoh: <b>7 + 8 = 15</b><br/>Jawaban yang dimasukkan: <b>5</b>.</div>
+            <div>Contoh: <b>4 + 3 = 7</b><br/>Jawaban yang dimasukkan: <b>7</b>.</div>
+          </div>
+          <div class="panel">
+            <div class="row">
+              <button class="btn btn-primary" id="beginBtn" type="button">Saya Mengerti, Mulai Tes</button>
+              <button class="btn btn-secondary" id="practiceBtn" type="button">Latihan 10 detik</button>
+            </div>
+            <div class="note">Setelah tes dimulai, kerjakan terus sampai selesai. Jika salah, lanjut saja ke angka berikutnya.</div>
+          </div>
+        </div>
+
+        <div class="play">
+          <div class="screen">
+            <div class="nums" aria-label="Angka yang harus dijumlahkan">
+              <div class="col">
+                <div id="a">6</div>
+                <div id="b">7</div>
+              </div>
+            </div>
+            <div class="prompt" id="prompt">Jumlahkan (ambil angka satuan)</div>
+            <div class="feedback" id="feedback"></div>
+            <div class="note" id="sessionNote"></div>
+          </div>
+
+          <div class="keypad" aria-label="Keypad jawaban">
+            <div class="key-grid" id="keyGrid"></div>
+            <div class="panel">
+              <div class="note"><b>Peringatan:</b> Hasil tes tidak ditampilkan kepada kandidat. Hasil hanya dapat dilihat dan diproses oleh HRD.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./sheet-config.js"></script>
+  <script src="./sheets-client.js"></script>
+  <script>
+    (function () {
+      const el = (id) => document.getElementById(id);
+      const aEl = el("a");
+      const bEl = el("b");
+      const scoreEl = el("score");
+      const wrongEl = el("wrong");
+      const colEl = el("col");
+      const colLeftEl = el("colLeft");
+      const totalLeftEl = el("totalLeft");
+      const feedbackEl = el("feedback");
+      const onboardingBox = el("onboardingBox");
+      const beginBtn = el("beginBtn");
+      const practiceBtn = el("practiceBtn");
+      const endBtn = el("endBtn");
+      const keyGrid = el("keyGrid");
+      const sessionNote = el("sessionNote");
+      const FIXED_TOTAL_SECONDS = 1800;
+      const FIXED_COL_SECONDS = 60;
+
+      let running = false;
+      let isPractice = false;
+      let startedAtIso = null;
+      let timer = null;
+      let lastShownAt = performance.now();
+      let rng = Math.random;
+
+      let score = 0;
+      let wrong = 0;
+      let colIndex = 1;
+      let totalLeft = FIXED_TOTAL_SECONDS;
+      let colLeft = FIXED_COL_SECONDS;
+      let attempts = [];
+
+      let curA = 6;
+      let curB = 7;
+
+      function xmur3(str) {
+        let h = 1779033703 ^ str.length;
+        for (let i = 0; i < str.length; i++) {
+          h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+          h = (h << 13) | (h >>> 19);
+        }
+        return function () {
+          h = Math.imul(h ^ (h >>> 16), 2246822507);
+          h = Math.imul(h ^ (h >>> 13), 3266489909);
+          return (h ^= (h >>> 16)) >>> 0;
+        };
+      }
+
+      function mulberry32(a) {
+        return function () {
+          let t = (a += 0x6D2B79F5);
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function getSession() {
+        try {
+          return JSON.parse(localStorage.getItem("HRRS_SESSION") || "null") || {};
+        } catch {
+          return {};
+        }
+      }
+
+      function updateSessionNote() {
+        const session = getSession();
+        const name = (session.candidate && session.candidate.name ? String(session.candidate.name) : "").trim();
+        const token = (session.token ? String(session.token) : "").trim();
+        const parts = [];
+        if (name) parts.push("Kandidat: " + name);
+        if (token) parts.push("Token: " + token);
+        sessionNote.textContent = parts.length ? parts.join(" • ") : "Tip: isi `localStorage.HRRS_SESSION` untuk menyimpan nama/token.";
+      }
+
+      function randDigit() {
+        return Math.floor(rng() * 10);
+      }
+
+      function currentAnswer() {
+        return (curA + curB) % 10;
+      }
+
+      function setFeedback(text, tone) {
+        feedbackEl.textContent = text || "";
+        feedbackEl.classList.remove("good", "bad");
+        if (tone === "good") feedbackEl.classList.add("good");
+        if (tone === "bad") feedbackEl.classList.add("bad");
+      }
+
+      function updateHUD() {
+        scoreEl.textContent = String(score);
+        wrongEl.textContent = String(wrong);
+        colEl.textContent = String(colIndex);
+        colLeftEl.textContent = String(colLeft);
+        totalLeftEl.textContent = String(totalLeft);
+      }
+
+      function nextPair() {
+        curA = randDigit();
+        curB = randDigit();
+        aEl.textContent = String(curA);
+        bEl.textContent = String(curB);
+        lastShownAt = performance.now();
+      }
+
+      function logAttempt(userInput, correct) {
+        const now = performance.now();
+        const reactionMs = Math.max(0, Math.round(now - lastShownAt));
+        const elapsedSec = Math.max(0, (isPractice ? 10 : FIXED_TOTAL_SECONDS) - totalLeft);
+        const session = getSession();
+        attempts.push({
+          ts_iso: new Date().toISOString(),
+          participant: (session.candidate && session.candidate.name ? String(session.candidate.name) : "").trim(),
+          seed: (session.token ? String(session.token) : "").trim(),
+          practice: isPractice ? 1 : 0,
+          col: colIndex,
+          minute: Math.floor(elapsedSec / 60) + 1,
+          elapsed_sec: elapsedSec,
+          a: curA,
+          b: curB,
+          expected: currentAnswer(),
+          input: userInput,
+          correct: correct ? 1 : 0,
+          reaction_ms: reactionMs
+        });
+      }
+
+      function onAnswer(digit) {
+        if (!running) return;
+        const expected = currentAnswer();
+        const correct = digit === expected;
+        logAttempt(digit, correct);
+
+        if (correct) {
+          score += 1;
+          setFeedback("Benar", "good");
+        } else {
+          wrong += 1;
+          setFeedback("Salah (seharusnya " + expected + ")", "bad");
+        }
+
+        nextPair();
+        updateHUD();
+      }
+
+      function tick() {
+        if (!running) return;
+        totalLeft -= 1;
+        colLeft -= 1;
+
+        if (colLeft <= 0) {
+          colIndex += 1;
+          colLeft = FIXED_COL_SECONDS;
+          if (!isPractice) setFeedback("Pindah kolom ke-" + colIndex, "");
+        }
+
+        if (totalLeft <= 0) {
+          updateHUD();
+          stop(isPractice ? "Latihan selesai" : "Waktu habis");
+          return;
+        }
+
+        updateHUD();
+      }
+
+      function start({ practice }) {
+        if (running) return;
+
+        isPractice = !!practice;
+        const session = getSession();
+        const seedStr = (session.token ? String(session.token) : "").trim();
+        if (seedStr) {
+          const seedFn = xmur3(seedStr);
+          rng = mulberry32(seedFn());
+        } else {
+          rng = Math.random;
+        }
+
+        score = 0;
+        wrong = 0;
+        colIndex = 1;
+        totalLeft = isPractice ? 10 : FIXED_TOTAL_SECONDS;
+        colLeft = FIXED_COL_SECONDS;
+        attempts = [];
+
+        startedAtIso = new Date().toISOString();
+        if (onboardingBox) onboardingBox.classList.add("hidden");
+
+        running = true;
+        endBtn.disabled = false;
+        setFeedback(isPractice ? "Latihan dimulai (10 detik)." : "Tes dimulai.", "good");
+
+        nextPair();
+        updateHUD();
+        tick();
+        timer = setInterval(tick, 1000);
+      }
+
+      function stop(reason) {
+        running = false;
+        if (timer) clearInterval(timer);
+        timer = null;
+        endBtn.disabled = true;
+
+        if (isPractice) {
+          setFeedback((reason || "Latihan selesai") + ". Latihan selesai — silakan mulai tes sebenarnya.", "good");
+        } else {
+          setFeedback("Tes Pauli selesai. Hasil tidak ditampilkan (kewenangan HRD). Lanjut ke Tes DISC...", "");
+        }
+
+        try {
+          const payload = buildPayload(reason);
+          localStorage.setItem("AIRTIS_KRAEPELIN_LAST", JSON.stringify(payload, null, 2));
+          try { window.AirtisSheets?.send("pauli", payload); } catch {}
+        } catch {}
+
+        if (isPractice) {
+          isPractice = false;
+          if (onboardingBox) onboardingBox.classList.remove("hidden");
+          return;
+        }
+
+        try {
+          const off = document.getElementById("offboardingBox");
+          if (off) off.classList.remove("hidden");
+          if (onboardingBox) onboardingBox.classList.add("hidden");
+          if (keypad) keypad.style.display = "none";
+        } catch {}
+
+        setTimeout(() => {
+          window.location.href = "./disc.html";
+        }, 1200);
+      }
+
+      function buildPayload(reason) {
+        const session = getSession();
+        return {
+          meta: {
+            startedAt: startedAtIso,
+            finishedAt: new Date().toISOString(),
+            reason: reason || "Selesai",
+            totalSeconds: isPractice ? 10 : FIXED_TOTAL_SECONDS,
+            columnSeconds: FIXED_COL_SECONDS
+          },
+          scoring: {
+            correct: score,
+            wrong: wrong,
+            totalAttempts: attempts.length,
+            lastColumn: colIndex
+          },
+          participant: (session.candidate && session.candidate.name ? String(session.candidate.name) : "").trim(),
+          seed: (session.token ? String(session.token) : "").trim(),
+          attempts
+        };
+      }
+
+      function buildKeys() {
+        const digits = [1,2,3,4,5,6,7,8,9,0];
+        keyGrid.innerHTML = "";
+        digits.forEach((d) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "key";
+          btn.textContent = String(d);
+          btn.addEventListener("click", () => onAnswer(d));
+          keyGrid.appendChild(btn);
+        });
+      }
+
+      beginBtn.addEventListener("click", () => start({ practice: false }));
+      practiceBtn.addEventListener("click", () => start({ practice: true }));
+      endBtn.addEventListener("click", () => stop("Diselesaikan"));
+
+      document.addEventListener("keydown", (e) => {
+        if (!running) return;
+        if (e.key >= "0" && e.key <= "9") onAnswer(parseInt(e.key, 10));
+      });
+
+      buildKeys();
+      updateSessionNote();
+      totalLeftEl.textContent = String(FIXED_TOTAL_SECONDS);
+      colLeftEl.textContent = String(FIXED_COL_SECONDS);
+      updateHUD();
+      setFeedback("Baca panduan lalu mulai tes.", "");
+    })();
+  </script>
+</body>
+</html>
