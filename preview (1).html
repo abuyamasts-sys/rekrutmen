@@ -1015,30 +1015,27 @@
       startTimer();
     }
 
-    function convertRawToIQ(score, total) {
-      let iq = Math.round(70 + (score / total) * 75);
-      if (iq > 145) iq = 145;
-      if (iq < 70) iq = 70;
-      return iq;
+    function getScreeningCategoryByCorrect(correct, total) {
+      const c = Number.isFinite(Number(correct)) ? Number(correct) : 0;
+      const t = Number.isFinite(Number(total)) ? Number(total) : 45;
+      const max = Math.max(1, t);
+      const pct = Math.round((c / max) * 100);
+
+      if (c >= 40) return { text: 'Sangat Baik', cls: 'chip-good', desc: `Menangkap instruksi sangat baik (${c}/${t}, ${pct}%).` };
+      if (c >= 34) return { text: 'Baik', cls: 'chip-good', desc: `Cukup cepat memahami soal (${c}/${t}, ${pct}%).` };
+      if (c >= 28) return { text: 'Cukup', cls: 'chip-main', desc: `Kemampuan dasar memadai (${c}/${t}, ${pct}%).` };
+      if (c >= 22) return { text: 'Perlu Pendampingan', cls: 'chip-warn', desc: `Perlu arahan dan training lebih intens (${c}/${t}, ${pct}%).` };
+      return { text: 'Perlu Evaluasi Lanjut', cls: 'chip-bad', desc: `Perlu pendalaman saat interview (${c}/${t}, ${pct}%).` };
     }
 
-    function getCategory(iq) {
-      if (iq >= 130) return { text: 'Superior', cls: 'chip-good', desc: 'Kemampuan tangkap dan analisa kandidat tergolong sangat baik untuk screening awal.' };
-      if (iq >= 110) return { text: 'Cerdas', cls: 'chip-main', desc: 'Kandidat memiliki kapasitas cukup baik untuk belajar dan memahami pola kerja.' };
-      if (iq >= 90) return { text: 'Rata-rata', cls: 'chip-main', desc: 'Masih sesuai untuk pekerjaan operasional dengan SOP yang jelas dan pembinaan awal.' };
-      if (iq >= 80) return { text: 'Di bawah rata-rata ringan', cls: 'chip-warn', desc: 'Perlu instruksi yang lebih jelas, pengulangan, dan pengawasan lebih dekat.' };
-      return { text: 'Di bawah rata-rata', cls: 'chip-bad', desc: 'Perlu pertimbangan lebih hati-hati dan sebaiknya diuji kembali melalui interview atau trial.' };
-    }
+    function getRecommendation(position, correct) {
+      const pos = (position || '').toString().trim().toLowerCase();
+      const c = Number.isFinite(Number(correct)) ? Number(correct) : 0;
 
-    function getRecommendation(position, iq) {
-      if (position === 'Sales') {
-        if (iq >= 110) return 'Layak diprioritaskan untuk Sales';
-        if (iq >= 90) return 'Cukup layak untuk Sales dengan training';
-        return 'Perlu pertimbangan ulang untuk Sales';
-      }
-      if (iq >= 100) return 'Layak diprioritaskan untuk Produksi';
-      if (iq >= 90) return 'Cukup layak untuk Produksi dengan pembinaan';
-      return 'Perlu pertimbangan ulang untuk Produksi';
+      if (c >= 34) return pos === 'sales' ? 'Layak diprioritaskan untuk Sales' : 'Layak diprioritaskan untuk Produksi';
+      if (c >= 28) return pos === 'sales' ? 'Cukup layak untuk Sales dengan training' : 'Cukup layak untuk Produksi dengan pembinaan';
+      if (c >= 22) return pos === 'sales' ? 'Perlu pendampingan untuk Sales' : 'Perlu pendampingan untuk Produksi';
+      return pos === 'sales' ? 'Perlu evaluasi lanjut untuk Sales' : 'Perlu evaluasi lanjut untuk Produksi';
     }
 
     function getDiscScores() {
@@ -1134,11 +1131,11 @@
       const nama = document.getElementById('nama').value.trim();
       const hp = (document.getElementById('hp')?.value || '').trim();
       const posisi = (document.getElementById('posisi')?.value || '').trim();
-      const iq = hasAnswerKey ? convertRawToIQ(scoreCorrect, cognitiveQuestions.length) : null;
+      const iq = hasAnswerKey ? scoreCorrect : null;
       const kategori = hasAnswerKey
-        ? getCategory(iq)
+        ? getScreeningCategoryByCorrect(scoreCorrect, cognitiveQuestions.length)
         : { text: 'Rekap', cls: 'chip-main', desc: 'Kunci jawaban belum tersedia, sehingga hasil bersifat rekap jawaban.' };
-      const rekomendasi = hasAnswerKey ? getRecommendation(posisi, iq) : 'Butuh penilaian manual (kunci jawaban belum tersedia).';
+      const rekomendasi = hasAnswerKey ? getRecommendation(posisi, scoreCorrect) : 'Butuh penilaian manual (kunci jawaban belum tersedia).';
       const discScores = hasDisc ? getDiscScores() : null;
       const discProfile = hasDisc ? getDiscProfile(discScores) : null;
       const status = auto ? 'Tes selesai otomatis karena waktu habis.' : 'Tes diselesaikan oleh kandidat.';

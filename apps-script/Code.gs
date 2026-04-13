@@ -580,8 +580,9 @@ function syncHrdSummary() {
     const name = String(getCell(row, "name") || "").trim();
     const phone = String(getCell(row, "phone") || "").trim();
     const position = String(getCell(row, "position") || "").trim();
-    const iqRaw = getCell(row, "cbt_iq");
-    const iq = iqRaw === "" || iqRaw == null ? null : Number(iqRaw);
+    // "IQ" HRD is based on jumlah benar (45 soal) sesuai tabel screening
+    const correctRaw = getCell(row, "cbt_correct");
+    const iq = correctRaw === "" || correctRaw == null ? null : Number(correctRaw);
     const category = String(getCell(row, "cbt_category") || "").trim();
 
     const pauliCorrect = getCell(row, "pauli_correct");
@@ -682,17 +683,15 @@ function buildDiscSummary_(dominant, secondary) {
 function buildKesimpulanHr_(iq, discDominant, pauliWrong, position) {
   const pos = (position || "").toString().trim() || "posisi yang dilamar";
   const disc = (discDominant || "").toString().trim().toUpperCase();
+  // iq here = jumlah benar CBT (45 soal)
   const iqNum = Number.isFinite(Number(iq)) ? Number(iq) : null;
   const wrongNum = pauliWrong === "" || pauliWrong == null ? null : Number(pauliWrong);
 
   let base;
-  if (iqNum != null && iqNum >= 100) {
-    if (pos.toLowerCase() === "sales" && (disc === "I" || disc === "S")) {
-      base = "Cukup sesuai untuk posisi Sales dan berpotensi baik pada aspek komunikasi/relasi.";
-    } else {
-      base = "Cukup sesuai untuk " + pos + ".";
-    }
-  } else if (iqNum != null && iqNum < 100) {
+  if (iqNum != null && iqNum >= 34) {
+    if (pos.toLowerCase() === "sales" && (disc === "I" || disc === "S")) base = "Cukup sesuai untuk posisi Sales dan berpotensi baik pada aspek komunikasi/relasi.";
+    else base = "Cukup sesuai untuk " + pos + ".";
+  } else if (iqNum != null && iqNum >= 22) {
     base = "Perlu pendampingan dan training untuk " + pos + ".";
   } else {
     base = "Perlu evaluasi lebih lanjut untuk " + pos + ".";
@@ -709,6 +708,7 @@ function buildKesimpulanHr_(iq, discDominant, pauliWrong, position) {
 }
 
 function buildRekomendasiAkhir_(iq, cbtRecommendation) {
+  // iq here = jumlah benar CBT (45 soal)
   const iqNum = Number.isFinite(Number(iq)) ? Number(iq) : null;
   const rec = (cbtRecommendation || "").toString().toLowerCase();
 
@@ -718,8 +718,8 @@ function buildRekomendasiAkhir_(iq, cbtRecommendation) {
   if (rec.includes("perlu pertimbangan")) return "Perlu Review";
 
   if (iqNum == null) return "Perlu Review";
-  if (iqNum >= 100) return "Lanjut Interview";
-  if (iqNum >= 90) return "Dipertimbangkan";
+  if (iqNum >= 34) return "Lanjut Interview";
+  if (iqNum >= 28) return "Dipertimbangkan";
   return "Perlu Review";
 }
 
