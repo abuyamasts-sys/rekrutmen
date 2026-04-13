@@ -20,6 +20,7 @@ const REPORT_CBT_SHEET = "REPORT_CBT";
 const REPORT_PAULI_SHEET = "REPORT_PAULI";
 const REPORT_DISC_SHEET = "REPORT_DISC";
 const REPORT_ALL_SHEET = "REPORT_ALL";
+const HRD_SUMMARY_SHEET = "HRD_SUMMARY";
 
 // Optional shared secret: set a value here and in `sheet-config.js`
 const SHARED_SECRET = "";
@@ -529,6 +530,223 @@ function rebuildReports() {
     try { writeReportRow_(ss, kind, token, name, phone, position, body); } catch {}
     try { upsertCombinedReport_(ss, kind, token, name, phone, position, body); } catch {}
   });
+}
+
+// Build HRD-friendly summary from REPORT_ALL (1 token = 1 row)
+function syncHrdSummary() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const source = ss.getSheetByName(REPORT_ALL_SHEET);
+  if (!source) throw new Error("Missing sheet: " + REPORT_ALL_SHEET);
+
+  const lastRow = source.getLastRow();
+  const lastCol = source.getLastColumn();
+  if (lastRow < 1 || lastCol < 1) throw new Error("REPORT_ALL is empty");
+
+  const all = source.getRange(1, 1, lastRow, lastCol).getValues();
+  const headers = (all[0] || []).map((h) => String(h || "").trim());
+  const idx = {};
+  headers.forEach((h, i) => { if (h) idx[h] = i; });
+
+  function getCell(row, headerName) {
+    const i = idx[headerName];
+    return i == null ? "" : row[i];
+  }
+
+  const outHeader = [
+    "Tanggal Tes",
+    "Token",
+    "Nama Kandidat",
+    "No. HP",
+    "Posisi Dilamar",
+    "IQ",
+    "Kategori IQ",
+    "Ringkasan Pauli",
+    "Ringkasan DISC",
+    "Kesimpulan HR",
+    "Rekomendasi Akhir"
+  ];
+
+  const rows = [];
+  const phoneFormulas = [];
+
+  for (let r = 1; r < all.length; r++) {
+    const row = all[r] || [];
+    const token = String(getCell(row, "token") || "").trim();
+    if (!token) continue;
+
+    const updatedAt = getCell(row, "updated_at");
+    const name = String(getCell(row, "name") || "").trim();
+    const phone = String(getCell(row, "phone") || "").trim();
+    const position = String(getCell(row, "position") || "").trim();
+    const iqRaw = getCell(row, "cbt_iq");
+    const iq = iqRaw === "" || iqRaw == null ? null : Number(iqRaw);
+    const category = String(getCell(row, "cbt_category") || "").trim();
+
+    const pauliCorrect = getCell(row, "pauli_correct");
+    const pauliWrong = getCell(row, "pauli_wrong");
+    const pauliTotal = getCell(row, "pauli_total_attempts");
+    const pauliSummary = buildPauliSummary_(pauliCorrect, pauliWrong, pauliTotal);
+
+    const discDom = String(getCell(row, "disc_dominant") || "").trim();
+    const discSec = String(getCell(row, "disc_secondary") || "").trim();
+    const discSummary = buildDiscSummary_(discDom, discSec);
+
+    const cbtRec = String(getCell(row, "cbt_recommendation") || "").trim();
+    const kesimpulan = buildKesimpulanHr_(iq, discDom, pauliWrong, position);
+    const rekomAkhir = buildRekomendasiAkhir_(iq, cbtRec);
+
+    const dateObj = normalizeToDate_(updatedAt);
+    rows.push([
+      dateObj || "",
+      token,
+      name,
+      phone || "",
+      position,
+      iq == null || !Number.isFinite(iq) ? "" : iq,
+      category,
+      pauliSummary,
+      discSummary,
+      kesimpulan,
+      rekomAkhir
+    ]);
+
+    phoneFormulas.push(phoneToWhatsAppFormula_(phone));
+  }
+
+  const sheet = ss.getSheetByName(HRD_SUMMARY_SHEET) || ss.insertSheet(HRD_SUMMARY_SHEET);
+  sheet.clear();
+  sheet.getRange(1, 1, 1, outHeader.length).setValues([outHeader]);
+  if (rows.length) sheet.getRange(2, 1, rows.length, outHeader.length).setValues(rows);
+
+  // Phone as WhatsApp hyperlink
+  if (rows.length) {
+    const formulas = phoneFormulas.map((f) => [f || ""]);
+    sheet.getRange(2, 4, formulas.length, 1).setFormulas(formulas);
+  }
+
+  // Formatting
+  sheet.setFrozenRows(1);
+  const headerRange = sheet.getRange(1, 1, 1, outHeader.length);
+  headerRange
+    .setFontWeight("bold")
+    .setBackground("#0B2A4A")
+    .setFontColor("#FFFFFF")
+    .setHorizontalAlignment("center")
+    .setVerticalAlignment("middle");
+
+  sheet.getDataRange().setVerticalAlignment("middle");
+
+  // Date format dd/mm/yyyy
+  if (rows.length) sheet.getRange(2, 1, rows.length, 1).setNumberFormat("dd/MM/yyyy");
+
+  // Wrap for Kesimpulan + Rekomendasi
+  sheet.getRange(1, 10, Math.max(rows.length + 1, 1), 2).setWrap(true);
+
+  // Comfortable alignment
+  sheet.getRange(2, 6, Math.max(rows.length, 1), 2).setHorizontalAlignment("center"); // IQ + Category
+  sheet.getRange(2, 1, Math.max(rows.length, 1), outHeader.length).setHorizontalAlignment("left");
+  headerRange.setHorizontalAlignment("center");
+
+  // Auto resize
+  try { sheet.autoResizeColumns(1, outHeader.length); } catch {}
+}
+
+function normalizeToDate_(v) {
+  if (v instanceof Date) return v;
+  if (typeof v === "number" && Number.isFinite(v)) return new Date(v);
+  if (!v) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function buildPauliSummary_(correct, wrong, total) {
+  const c = correct === "" || correct == null ? null : Number(correct);
+  const w = wrong === "" || wrong == null ? null : Number(wrong);
+  const t = total === "" || total == null ? null : Number(total);
+  if (!Number.isFinite(c) && !Number.isFinite(w) && !Number.isFinite(t)) return "";
+  return "Benar " + (Number.isFinite(c) ? c : "-") + " | Salah " + (Number.isFinite(w) ? w : "-") + " | Total " + (Number.isFinite(t) ? t : "-");
+}
+
+function buildDiscSummary_(dominant, secondary) {
+  const d = (dominant || "").toString().trim();
+  const s = (secondary || "").toString().trim();
+  if (!d && !s) return "";
+  if (d && s) return d + " - " + s;
+  return d || s;
+}
+
+function buildKesimpulanHr_(iq, discDominant, pauliWrong, position) {
+  const pos = (position || "").toString().trim() || "posisi yang dilamar";
+  const disc = (discDominant || "").toString().trim().toUpperCase();
+  const iqNum = Number.isFinite(Number(iq)) ? Number(iq) : null;
+  const wrongNum = pauliWrong === "" || pauliWrong == null ? null : Number(pauliWrong);
+
+  let base;
+  if (iqNum != null && iqNum >= 100) {
+    if (pos.toLowerCase() === "sales" && (disc === "I" || disc === "S")) {
+      base = "Cukup sesuai untuk posisi Sales dan berpotensi baik pada aspek komunikasi/relasi.";
+    } else {
+      base = "Cukup sesuai untuk " + pos + ".";
+    }
+  } else if (iqNum != null && iqNum < 100) {
+    base = "Perlu pendampingan dan training untuk " + pos + ".";
+  } else {
+    base = "Perlu evaluasi lebih lanjut untuk " + pos + ".";
+  }
+
+  if (wrongNum != null && Number.isFinite(wrongNum) && wrongNum <= 2) {
+    // keep one sentence only; add short clause if fits
+    if (base.endsWith(".")) base = base.slice(0, -1);
+    base += " dengan ketelitian cukup baik.";
+  }
+
+  // Ensure single concise sentence
+  return base.replace(/\s+/g, " ").trim();
+}
+
+function buildRekomendasiAkhir_(iq, cbtRecommendation) {
+  const iqNum = Number.isFinite(Number(iq)) ? Number(iq) : null;
+  const rec = (cbtRecommendation || "").toString().toLowerCase();
+
+  // Use recommendation text as a hint when present
+  if (rec.includes("layak diprioritaskan")) return "Lanjut Interview";
+  if (rec.includes("cukup layak")) return iqNum != null && iqNum < 90 ? "Perlu Review" : "Dipertimbangkan";
+  if (rec.includes("perlu pertimbangan")) return "Perlu Review";
+
+  if (iqNum == null) return "Perlu Review";
+  if (iqNum >= 100) return "Lanjut Interview";
+  if (iqNum >= 90) return "Dipertimbangkan";
+  return "Perlu Review";
+}
+
+function normalizePhoneForWa_(phone) {
+  const raw = (phone || "").toString().trim();
+  if (!raw) return { display: "", wa: "" };
+
+  // keep display as-is (local format)
+  const display = raw;
+
+  // build wa number digits only, with country code 62
+  let digits = raw.replace(/[^\d+]/g, "");
+  if (digits.startsWith("+")) digits = digits.slice(1);
+
+  if (digits.startsWith("08")) digits = "62" + digits.slice(1);
+  else if (digits.startsWith("8")) digits = "62" + digits; // fallback
+  else if (digits.startsWith("62")) digits = digits;
+  else if (digits.startsWith("0")) digits = "62" + digits.slice(1);
+
+  // final cleanup
+  digits = digits.replace(/[^\d]/g, "");
+  return { display, wa: digits };
+}
+
+function phoneToWhatsAppFormula_(phone) {
+  const p = normalizePhoneForWa_(phone);
+  if (!p.display) return "";
+  if (!p.wa) return p.display;
+  return '=HYPERLINK("https://wa.me/' + p.wa + '","' + p.display + '")';
 }
 
 function json(obj, status) {
