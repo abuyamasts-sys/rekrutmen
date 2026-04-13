@@ -606,12 +606,39 @@
         updateHUD();
       }
 
-      function start({ practice }) {
+      async function start({ practice }) {
         if (running) return;
 
         isPractice = !!practice;
         const session = getSession();
+        const name = (session.candidate?.name || "").toString().trim();
         const seedStr = (session.token ? String(session.token) : "").trim();
+
+        if (!name || !seedStr) {
+          setFeedback("Data kandidat belum lengkap. Kembali ke tahap sebelumnya dan isi Token + Nama.", "");
+          return;
+        }
+
+        if (window.AirtisSheets?.validateToken) {
+          beginBtn.disabled = true;
+          practiceBtn.disabled = true;
+          let tokenCheck;
+          try {
+            tokenCheck = await window.AirtisSheets.validateToken(seedStr);
+          } finally {
+            beginBtn.disabled = false;
+            practiceBtn.disabled = false;
+          }
+          if (!tokenCheck?.ok) {
+            setFeedback("Gagal validasi token. Cek koneksi / endpoint Apps Script.", "");
+            return;
+          }
+          if (!tokenCheck?.valid) {
+            setFeedback("Token tidak valid / tidak terdaftar. Kembali ke tahap sebelumnya dan gunakan token yang benar.", "");
+            return;
+          }
+        }
+
         if (seedStr) {
           const seedFn = xmur3(seedStr);
           rng = mulberry32(seedFn());

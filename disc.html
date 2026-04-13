@@ -692,7 +692,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      function start() {
+      async function start() {
         if (running) return;
         const session = getSession();
         const name = (session.candidate?.name || '').toString().trim();
@@ -700,6 +700,25 @@
         if (!name || !token) {
           setNotice('Data kandidat belum lengkap. Kembali ke tahap sebelumnya dan isi Token + Nama.');
           return;
+        }
+
+        if (window.AirtisSheets?.validateToken) {
+          startBtn.disabled = true;
+          let tokenCheck;
+          try {
+            tokenCheck = await window.AirtisSheets.validateToken(token);
+          } finally {
+            startBtn.disabled = false;
+          }
+
+          if (!tokenCheck?.ok) {
+            setNotice('Gagal validasi token. Cek koneksi / endpoint Apps Script.');
+            return;
+          }
+          if (!tokenCheck?.valid) {
+            setNotice('Token tidak valid / tidak terdaftar. Kembali ke halaman sebelumnya dan isi token yang benar.');
+            return;
+          }
         }
 
         startedAtIso = new Date().toISOString();

@@ -945,12 +945,13 @@
       document.getElementById('progressText').textContent = `${answered} / ${questions.length}`;
     }
 
-    function startTest() {
+    async function startTest() {
       const tokenEl = document.getElementById('token');
       const token = (tokenEl?.value || '').trim();
       const nama = document.getElementById('nama').value.trim();
       const hp = (document.getElementById('hp')?.value || '').trim();
       const posisi = (document.getElementById('posisi')?.value || '').trim();
+      const startBtn = document.querySelector('button[onclick="startTest()"]');
 
       if (!token) {
         alert('Silakan isi token dari HRD terlebih dahulu.');
@@ -967,6 +968,30 @@
       }
       if (!posisi) {
         alert('Silakan pilih posisi yang dilamar.');
+        return;
+      }
+
+      // Validate token against HRD_TOKENS in Google Sheet (via Apps Script JSONP)
+      if (!window.AirtisSheets?.validateToken) {
+        alert('Validasi token belum tersedia. Pastikan `sheets-client.js` terbaru ter-load.');
+        return;
+      }
+
+      if (startBtn) startBtn.disabled = true;
+      let tokenCheck;
+      try {
+        tokenCheck = await window.AirtisSheets.validateToken(token);
+      } finally {
+        if (startBtn) startBtn.disabled = false;
+      }
+
+      if (!tokenCheck?.ok) {
+        alert('Gagal validasi token. Cek koneksi / endpoint Apps Script.\n\n' + String(tokenCheck?.error || 'unknown_error'));
+        return;
+      }
+      if (!tokenCheck?.valid) {
+        alert('Token tidak valid / tidak terdaftar. Silakan cek ulang token dari HRD.');
+        tokenEl?.focus();
         return;
       }
 

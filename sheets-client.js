@@ -40,6 +40,57 @@
     return { ok: true, nocors: true };
   }
 
+  function jsonpGet(params) {
+    const endpoint = ENDPOINT();
+    if (!endpoint) return Promise.resolve({ ok: false, error: "missing_endpoint" });
+
+    const cbName = "__airtis_cb_" + Math.random().toString(36).slice(2);
+    const secret = SECRET();
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      const qs = new URLSearchParams();
+      Object.entries(params || {}).forEach(([k, v]) => {
+        if (v == null) return;
+        const s = String(v).trim();
+        if (!s) return;
+        qs.set(k, s);
+      });
+      if (secret) qs.set("secret", secret);
+      qs.set("cb", cbName);
+
+      const url = endpoint + (endpoint.includes("?") ? "&" : "?") + qs.toString();
+
+      window[cbName] = (payload) => {
+        try { delete window[cbName]; } catch {}
+        script.remove();
+        resolve(payload);
+      };
+
+      script.onerror = () => {
+        try { delete window[cbName]; } catch {}
+        script.remove();
+        reject(new Error("jsonp_failed"));
+      };
+
+      script.src = url;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function validateToken(token) {
+    const t = (token || "").toString().trim();
+    if (!t) return { ok: true, valid: false, reason: "missing_token" };
+
+    try {
+      const res = await jsonpGet({ kind: "validate_token", token: t });
+      if (!res || !res.ok) return { ok: false, valid: false, error: res?.error || "invalid_response" };
+      return res;
+    } catch (e) {
+      return { ok: false, valid: false, error: e?.message || String(e) };
+    }
+  }
+
   async function flushQueue() {
     const url = ENDPOINT();
     if (!url) return { ok: false, skipped: true, reason: "missing_endpoint" };
@@ -79,6 +130,8 @@
 
   window.AirtisSheets = {
     send,
-    flushQueue
+    flushQueue,
+    jsonpGet,
+    validateToken
   };
 })();

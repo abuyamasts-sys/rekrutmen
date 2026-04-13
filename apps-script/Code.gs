@@ -42,6 +42,12 @@ function doGet(e) {
       return jsonp_(cb, { ok: true, ...out });
     }
 
+    if (kind === "validate_token") {
+      const token = (p.token ? String(p.token) : "").trim();
+      const out = validateHrdToken_(ss, token);
+      return jsonp_(cb, { ok: true, ...out });
+    }
+
     return jsonp_(cb, { ok: false, error: "unsupported_kind" });
   } catch (err) {
     return jsonp_("", { ok: false, error: String(err && err.message ? err.message : err) });
@@ -150,6 +156,35 @@ function createHrdToken_(ss, payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function validateHrdToken_(ss, token) {
+  const normalized = (token ? String(token) : "").trim();
+  if (!normalized) return { valid: false, reason: "missing_token" };
+
+  const sheet = ss.getSheetByName(HRD_SHEET_NAME);
+  if (!sheet) return { valid: false, reason: "missing_sheet" };
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { valid: false, reason: "empty_sheet" };
+
+  // token column: E (5). Data starts at row 2 (row 1 = header)
+  const tokenRange = sheet.getRange(2, 5, lastRow - 1, 1);
+  const finder = tokenRange.createTextFinder(normalized).matchEntireCell(true);
+  const cell = finder.findNext();
+  if (!cell) return { valid: false, reason: "not_found" };
+
+  const row = cell.getRow();
+  const values = sheet.getRange(row, 1, 1, 7).getValues()[0] || [];
+  return {
+    valid: true,
+    token: String(values[4] || normalized),
+    date: values[1] ? String(values[1]) : "",
+    position: values[2] ? String(values[2]) : "",
+    seq: values[3] != null ? Number(values[3]) : null,
+    name: values[5] ? String(values[5]) : "",
+    phone: values[6] ? String(values[6]) : ""
+  };
 }
 
 function json(obj, status) {
