@@ -105,7 +105,8 @@ function doPost(e) {
       kind,
       token,
       name,
-      phone,
+      // Force as text to preserve leading zero(s) in Google Sheets
+      phone ? ("'" + phone) : "",
       position,
       JSON.stringify(body)
     ]);
@@ -170,7 +171,8 @@ function createHrdToken_(ss, payload) {
       seq,
       token,
       name,
-      phone
+      // Force as text to preserve leading zero(s) in Google Sheets
+      phone ? ("'" + phone) : ""
     ]);
 
     return { token, seq, date: today, position };
@@ -725,8 +727,13 @@ function normalizePhoneForWa_(phone) {
   const raw = (phone || "").toString().trim();
   if (!raw) return { display: "", wa: "" };
 
-  // keep display as-is (local format)
-  const display = raw;
+  // Prefer local display format (08...), even if the source lost leading zero
+  const rawDigitsOnly = raw.replace(/[^\d]/g, "");
+  let display = raw;
+  if (rawDigitsOnly && rawDigitsOnly === rawDigitsOnly && rawDigitsOnly === raw) {
+    if (rawDigitsOnly.startsWith("62") && rawDigitsOnly.length >= 9) display = "0" + rawDigitsOnly.slice(2);
+    else if (rawDigitsOnly.startsWith("8") && rawDigitsOnly.length >= 8) display = "0" + rawDigitsOnly;
+  }
 
   // build wa number digits only, with country code 62
   let digits = raw.replace(/[^\d+]/g, "");
