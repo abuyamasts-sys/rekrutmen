@@ -567,7 +567,7 @@ function syncHrdSummary() {
   ];
 
   const rows = [];
-  const phoneFormulas = [];
+  const phoneRichTexts = [];
 
   for (let r = 1; r < all.length; r++) {
     const row = all[r] || [];
@@ -610,7 +610,7 @@ function syncHrdSummary() {
       rekomAkhir
     ]);
 
-    phoneFormulas.push(phoneToWhatsAppFormula_(phone));
+    phoneRichTexts.push(phoneToWhatsAppRichText_(phone));
   }
 
   const sheet = ss.getSheetByName(HRD_SUMMARY_SHEET) || ss.insertSheet(HRD_SUMMARY_SHEET);
@@ -618,10 +618,10 @@ function syncHrdSummary() {
   sheet.getRange(1, 1, 1, outHeader.length).setValues([outHeader]);
   if (rows.length) sheet.getRange(2, 1, rows.length, outHeader.length).setValues(rows);
 
-  // Phone as WhatsApp hyperlink
+  // Phone as WhatsApp hyperlink (RichText; avoids locale formula separator issues)
   if (rows.length) {
-    const formulas = phoneFormulas.map((f) => [f || ""]);
-    sheet.getRange(2, 4, formulas.length, 1).setFormulas(formulas);
+    const rich = phoneRichTexts.map((rt) => [rt]);
+    sheet.getRange(2, 4, rich.length, 1).setRichTextValues(rich);
   }
 
   // Formatting
@@ -747,6 +747,14 @@ function phoneToWhatsAppFormula_(phone) {
   if (!p.display) return "";
   if (!p.wa) return p.display;
   return '=HYPERLINK("https://wa.me/' + p.wa + '","' + p.display + '")';
+}
+
+function phoneToWhatsAppRichText_(phone) {
+  const p = normalizePhoneForWa_(phone);
+  const builder = SpreadsheetApp.newRichTextValue();
+  builder.setText(p.display || "");
+  if (p.display && p.wa) builder.setLinkUrl("https://wa.me/" + p.wa);
+  return builder.build();
 }
 
 function json(obj, status) {
