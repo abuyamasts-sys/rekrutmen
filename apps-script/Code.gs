@@ -19,6 +19,7 @@ const HRD_SHEET_NAME = "HRD_TOKENS";
 const REPORT_CBT_SHEET = "REPORT_CBT";
 const REPORT_PAULI_SHEET = "REPORT_PAULI";
 const REPORT_DISC_SHEET = "REPORT_DISC";
+const REPORT_ALL_SHEET = "REPORT_ALL";
 
 // Optional shared secret: set a value here and in `sheet-config.js`
 const SHARED_SECRET = "";
@@ -111,6 +112,13 @@ function doPost(e) {
     // Best-effort: write to readable report sheet(s)
     try {
       writeReportRow_(ss, kind, token, name, phone, position, body);
+    } catch (err) {
+      // Ignore reporting failures so raw collection still works
+    }
+
+    // Best-effort: upsert into combined report sheet
+    try {
+      upsertCombinedReport_(ss, kind, token, name, phone, position, body);
     } catch (err) {
       // Ignore reporting failures so raw collection still works
     }
@@ -336,6 +344,160 @@ function writeDiscReportRow_(ss, token, name, phone, position, body) {
   ]);
 }
 
+function combinedHeaders_() {
+  return [
+    "updated_at",
+    "token",
+    "name",
+    "phone",
+    "position",
+    // CBT
+    "cbt_finished_at",
+    "cbt_answered",
+    "cbt_total",
+    "cbt_correct",
+    "cbt_iq",
+    "cbt_category",
+    "cbt_recommendation",
+    // PAULI (non-practice)
+    "pauli_started_at",
+    "pauli_finished_at",
+    "pauli_reason",
+    "pauli_total_seconds",
+    "pauli_column_seconds",
+    "pauli_correct",
+    "pauli_wrong",
+    "pauli_total_attempts",
+    "pauli_last_column",
+    // DISC
+    "disc_started_at",
+    "disc_finished_at",
+    "disc_dominant",
+    "disc_secondary",
+    "disc_D",
+    "disc_I",
+    "disc_S",
+    "disc_C"
+  ];
+}
+
+function getOrCreateCombinedSheet_(ss) {
+  const sheet = ss.getSheetByName(REPORT_ALL_SHEET) || ss.insertSheet(REPORT_ALL_SHEET);
+  ensureHeader_(sheet, combinedHeaders_());
+  return sheet;
+}
+
+function findRowByToken_(sheet, token) {
+  const t = (token || "").toString().trim();
+  if (!t) return null;
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const tokenRange = sheet.getRange(2, 2, lastRow - 1, 1); // column B
+  const finder = tokenRange.createTextFinder(t).matchEntireCell(true);
+  const cell = finder.findNext();
+  return cell ? cell.getRow() : null;
+}
+
+function toStr_(v) {
+  return v == null ? "" : String(v);
+}
+
+function toNumOrBlank_(v) {
+  if (v == null || v === "") return "";
+  const n = Number(v);
+  return Number.isFinite(n) ? n : "";
+}
+
+function detectPauliPractice_(payload) {
+  const attempts = Array.isArray(payload?.attempts) ? payload.attempts : [];
+  if (!attempts.length) return null;
+  return attempts[0] && attempts[0].practice ? 1 : 0;
+}
+
+function upsertCombinedReport_(ss, kind, token, name, phone, position, body) {
+  const k = String(kind || "").trim();
+  const t = (token || "").toString().trim();
+  if (!k || !t) return;
+
+  const sheet = getOrCreateCombinedSheet_(ss);
+  let row = findRowByToken_(sheet, t);
+  if (!row) row = sheet.getLastRow() + 1;
+
+  // Read existing row to preserve fields from other kinds
+  const existing = row <= sheet.getLastRow()
+    ? (sheet.getRange(row, 1, 1, combinedHeaders_().length).getValues()[0] || [])
+    : new Array(combinedHeaders_().length).fill("");
+
+  // Base identity fields (prefer latest non-empty)
+  const next = existing.slice();
+  next[0] = new Date(); // updated_at
+  next[1] = t; // token
+  if (toStr_(name).trim()) next[2] = toStr_(name).trim();
+  if (toStr_(phone).trim()) next[3] = toStr_(phone).trim();
+  if (toStr_(position).trim()) next[4] = toStr_(position).trim();
+
+  const payload = body && body.payload ? body.payload : {};
+
+  if (k === "cbt") {
+    const meta = payload.meta || {};
+    const session = payload.session || {};
+    const candidate = session.candidate || {};
+    const summary = payload.summary || {};
+
+    if (!next[2] && toStr_(candidate.name).trim()) next[2] = toStr_(candidate.name).trim();
+    if (!next[3] && toStr_(candidate.phone).trim()) next[3] = toStr_(candidate.phone).trim();
+    if (!next[4] && toStr_(candidate.position).trim()) next[4] = toStr_(candidate.position).trim();
+
+    next[5] = toStr_(meta.finishedAt);
+    next[6] = toNumOrBlank_(summary.answered);
+    next[7] = toNumOrBlank_(summary.total);
+    next[8] = toNumOrBlank_(summary.correct);
+    next[9] = toNumOrBlank_(summary.iq);
+    next[10] = toStr_(summary.category);
+    next[11] = toStr_(summary.recommendation);
+  } else if (k === "pauli") {
+    // Only store non-practice in combined report
+    const isPractice = detectPauliPractice_(payload);
+    if (isPractice === 1) {
+      // ignore practice rows (keep combined report focused)
+    } else {
+      const meta = payload.meta || {};
+      const scoring = payload.scoring || {};
+      if (toStr_(payload.participant).trim() && !next[2]) next[2] = toStr_(payload.participant).trim();
+
+      next[12] = toStr_(meta.startedAt);
+      next[13] = toStr_(meta.finishedAt);
+      next[14] = toStr_(meta.reason);
+      next[15] = toNumOrBlank_(meta.totalSeconds);
+      next[16] = toNumOrBlank_(meta.columnSeconds);
+      next[17] = toNumOrBlank_(scoring.correct);
+      next[18] = toNumOrBlank_(scoring.wrong);
+      next[19] = toNumOrBlank_(scoring.totalAttempts);
+      next[20] = toNumOrBlank_(scoring.lastColumn);
+    }
+  } else if (k === "disc") {
+    const meta = payload.meta || {};
+    const session = payload.session || {};
+    const candidate = session.candidate || {};
+    const scores = payload.scores || {};
+
+    if (!next[2] && toStr_(candidate.name).trim()) next[2] = toStr_(candidate.name).trim();
+    if (!next[3] && toStr_(candidate.phone).trim()) next[3] = toStr_(candidate.phone).trim();
+    if (!next[4] && toStr_(candidate.position).trim()) next[4] = toStr_(candidate.position).trim();
+
+    next[21] = toStr_(meta.startedAt);
+    next[22] = toStr_(meta.finishedAt);
+    next[23] = toStr_(payload.dominant);
+    next[24] = toStr_(payload.secondary);
+    next[25] = toNumOrBlank_(scores.D);
+    next[26] = toNumOrBlank_(scores.I);
+    next[27] = toNumOrBlank_(scores.S);
+    next[28] = toNumOrBlank_(scores.C);
+  }
+
+  sheet.getRange(row, 1, 1, next.length).setValues([next]);
+}
+
 // Run manually in Apps Script editor to rebuild REPORT_* sheets from raw `assessments` sheet.
 function rebuildReports() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -343,7 +505,7 @@ function rebuildReports() {
   if (!sheet) throw new Error("Missing sheet: " + SHEET_NAME);
 
   // Clear report sheets
-  [REPORT_CBT_SHEET, REPORT_PAULI_SHEET, REPORT_DISC_SHEET].forEach((name) => {
+  [REPORT_CBT_SHEET, REPORT_PAULI_SHEET, REPORT_DISC_SHEET, REPORT_ALL_SHEET].forEach((name) => {
     const s = ss.getSheetByName(name);
     if (s) s.clear();
   });
@@ -365,6 +527,7 @@ function rebuildReports() {
     try { body = JSON.parse(String(payloadJson)); } catch { body = null; }
     if (!body) return;
     try { writeReportRow_(ss, kind, token, name, phone, position, body); } catch {}
+    try { upsertCombinedReport_(ss, kind, token, name, phone, position, body); } catch {}
   });
 }
 
