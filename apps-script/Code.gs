@@ -15,6 +15,11 @@ const SPREADSHEET_ID = "1Y6ataIODMYO-GEDs33XKfrzV85ougtfiu0cplup5aBg";
 const SHEET_NAME = "assessments";
 const HRD_SHEET_NAME = "HRD_TOKENS";
 
+// Readable report sheets (optional; will be auto-created)
+const REPORT_CBT_SHEET = "REPORT_CBT";
+const REPORT_PAULI_SHEET = "REPORT_PAULI";
+const REPORT_DISC_SHEET = "REPORT_DISC";
+
 // Optional shared secret: set a value here and in `sheet-config.js`
 const SHARED_SECRET = "";
 
@@ -103,6 +108,13 @@ function doPost(e) {
       JSON.stringify(body)
     ]);
 
+    // Best-effort: write to readable report sheet(s)
+    try {
+      writeReportRow_(ss, kind, token, name, phone, position, body);
+    } catch (err) {
+      // Ignore reporting failures so raw collection still works
+    }
+
     return json({ ok: true });
   } catch (err) {
     return json({ ok: false, error: String(err && err.message ? err.message : err) }, 500);
@@ -185,6 +197,175 @@ function validateHrdToken_(ss, token) {
     name: values[5] ? String(values[5]) : "",
     phone: values[6] ? String(values[6]) : ""
   };
+}
+
+function writeReportRow_(ss, kind, token, name, phone, position, body) {
+  const k = String(kind || "").trim();
+  if (!k) return;
+
+  if (k === "cbt") return writeCbtReportRow_(ss, token, name, phone, position, body);
+  if (k === "pauli") return writePauliReportRow_(ss, token, name, phone, position, body);
+  if (k === "disc") return writeDiscReportRow_(ss, token, name, phone, position, body);
+}
+
+function ensureHeader_(sheet, headers) {
+  if (sheet.getLastRow() > 0) return;
+  sheet.appendRow(headers);
+}
+
+function writeCbtReportRow_(ss, token, name, phone, position, body) {
+  const sheet = ss.getSheetByName(REPORT_CBT_SHEET) || ss.insertSheet(REPORT_CBT_SHEET);
+  ensureHeader_(sheet, [
+    "received_at",
+    "token",
+    "name",
+    "phone",
+    "position",
+    "finished_at",
+    "answered",
+    "total",
+    "correct",
+    "iq",
+    "category",
+    "recommendation"
+  ]);
+
+  const payload = body && body.payload ? body.payload : {};
+  const meta = payload.meta || {};
+  const session = payload.session || {};
+  const candidate = session.candidate || {};
+  const summary = payload.summary || {};
+
+  sheet.appendRow([
+    new Date(),
+    token || (session.token || ""),
+    name || (candidate.name || ""),
+    phone || (candidate.phone || ""),
+    position || (candidate.position || ""),
+    meta.finishedAt || "",
+    summary.answered != null ? summary.answered : "",
+    summary.total != null ? summary.total : "",
+    summary.correct != null ? summary.correct : "",
+    summary.iq != null ? summary.iq : "",
+    summary.category || "",
+    summary.recommendation || ""
+  ]);
+}
+
+function writePauliReportRow_(ss, token, name, phone, position, body) {
+  const sheet = ss.getSheetByName(REPORT_PAULI_SHEET) || ss.insertSheet(REPORT_PAULI_SHEET);
+  ensureHeader_(sheet, [
+    "received_at",
+    "token",
+    "name",
+    "position",
+    "started_at",
+    "finished_at",
+    "reason",
+    "practice",
+    "total_seconds",
+    "column_seconds",
+    "correct",
+    "wrong",
+    "total_attempts",
+    "last_column"
+  ]);
+
+  const payload = body && body.payload ? body.payload : {};
+  const meta = payload.meta || {};
+  const scoring = payload.scoring || {};
+  const attempts = Array.isArray(payload.attempts) ? payload.attempts : [];
+  const practice = attempts.length ? (attempts[0] && attempts[0].practice ? 1 : 0) : "";
+
+  sheet.appendRow([
+    new Date(),
+    token || (payload.seed || ""),
+    name || (payload.participant || ""),
+    position || "",
+    meta.startedAt || "",
+    meta.finishedAt || "",
+    meta.reason || "",
+    practice,
+    meta.totalSeconds != null ? meta.totalSeconds : "",
+    meta.columnSeconds != null ? meta.columnSeconds : "",
+    scoring.correct != null ? scoring.correct : "",
+    scoring.wrong != null ? scoring.wrong : "",
+    scoring.totalAttempts != null ? scoring.totalAttempts : "",
+    scoring.lastColumn != null ? scoring.lastColumn : ""
+  ]);
+}
+
+function writeDiscReportRow_(ss, token, name, phone, position, body) {
+  const sheet = ss.getSheetByName(REPORT_DISC_SHEET) || ss.insertSheet(REPORT_DISC_SHEET);
+  ensureHeader_(sheet, [
+    "received_at",
+    "token",
+    "name",
+    "phone",
+    "position",
+    "started_at",
+    "finished_at",
+    "dominant",
+    "secondary",
+    "D",
+    "I",
+    "S",
+    "C"
+  ]);
+
+  const payload = body && body.payload ? body.payload : {};
+  const meta = payload.meta || {};
+  const session = payload.session || {};
+  const candidate = session.candidate || {};
+  const scores = payload.scores || {};
+
+  sheet.appendRow([
+    new Date(),
+    token || (session.token || ""),
+    name || (candidate.name || ""),
+    phone || (candidate.phone || ""),
+    position || (candidate.position || ""),
+    meta.startedAt || "",
+    meta.finishedAt || "",
+    payload.dominant || "",
+    payload.secondary || "",
+    scores.D != null ? scores.D : "",
+    scores.I != null ? scores.I : "",
+    scores.S != null ? scores.S : "",
+    scores.C != null ? scores.C : ""
+  ]);
+}
+
+// Run manually in Apps Script editor to rebuild REPORT_* sheets from raw `assessments` sheet.
+function rebuildReports() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) throw new Error("Missing sheet: " + SHEET_NAME);
+
+  // Clear report sheets
+  [REPORT_CBT_SHEET, REPORT_PAULI_SHEET, REPORT_DISC_SHEET].forEach((name) => {
+    const s = ss.getSheetByName(name);
+    if (s) s.clear();
+  });
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  // Columns: A received_at, B kind, C token, D name, E phone, F position, G payload_json
+  const values = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
+  values.forEach((row) => {
+    const kind = row[1];
+    const token = row[2];
+    const name = row[3];
+    const phone = row[4];
+    const position = row[5];
+    const payloadJson = row[6];
+    if (!payloadJson) return;
+    let body;
+    try { body = JSON.parse(String(payloadJson)); } catch { body = null; }
+    if (!body) return;
+    try { writeReportRow_(ss, kind, token, name, phone, position, body); } catch {}
+  });
 }
 
 function json(obj, status) {
