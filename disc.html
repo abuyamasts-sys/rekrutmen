@@ -712,11 +712,11 @@
           }
 
           if (!tokenCheck?.ok) {
-            setNotice('Gagal validasi token. Cek koneksi / endpoint Apps Script.');
+            setNotice('Maaf, verifikasi token gagal. Silakan hubungi HRD.');
             return;
           }
           if (!tokenCheck?.valid) {
-            setNotice('Token tidak valid / tidak terdaftar. Kembali ke halaman sebelumnya dan isi token yang benar.');
+            setNotice('Maaf, token Anda tidak cocok / tidak terdaftar. Silakan hubungi HRD.');
             return;
           }
         }

@@ -630,11 +630,11 @@
             practiceBtn.disabled = false;
           }
           if (!tokenCheck?.ok) {
-            setFeedback("Gagal validasi token. Cek koneksi / endpoint Apps Script.", "");
+            setFeedback("Maaf, verifikasi token gagal. Silakan hubungi HRD.", "");
             return;
           }
           if (!tokenCheck?.valid) {
-            setFeedback("Token tidak valid / tidak terdaftar. Kembali ke tahap sebelumnya dan gunakan token yang benar.", "");
+            setFeedback("Maaf, token Anda tidak cocok / tidak terdaftar. Silakan hubungi HRD.", "");
             return;
           }
         }

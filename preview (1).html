@@ -986,11 +986,11 @@
       }
 
       if (!tokenCheck?.ok) {
-        alert('Gagal validasi token. Cek koneksi / endpoint Apps Script.\n\n' + String(tokenCheck?.error || 'unknown_error'));
+        alert('Maaf, verifikasi token gagal. Silakan hubungi HRD.');
         return;
       }
       if (!tokenCheck?.valid) {
-        alert('Token tidak valid / tidak terdaftar. Silakan cek ulang token dari HRD.');
+        alert('Maaf, token Anda tidak cocok / tidak terdaftar. Silakan hubungi HRD.');
         tokenEl?.focus();
         return;
       }
